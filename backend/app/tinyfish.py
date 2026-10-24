@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 import re
 import time
@@ -185,6 +186,24 @@ def save_video(run: dict) -> Optional[str]:
     except Exception as e:
         print("tinyfish: could not download video:", e)
         return None
+
+
+def last_actions(run: dict, n: int = 5) -> list:
+    return [a.get("action") for a in (run.get("steps") or [])[-n:] if a.get("action")]
+
+
+RUN_LOG_DIR = Path(__file__).resolve().parents[1] / "samples" / "runs"
+
+
+def save_run(run: dict) -> None:
+    """Keep every raw run (credentials stripped) so a failure can be explained.
+    samples/runs/ is git-ignored; copy a good one up to samples/ to commit it."""
+    try:
+        RUN_LOG_DIR.mkdir(parents=True, exist_ok=True)
+        (RUN_LOG_DIR / f"{run.get('run_id', 'unknown')}.json").write_text(
+            json.dumps(redact(run), indent=2))
+    except Exception as e:
+        print("tinyfish: could not save run log:", e)
 
 
 def redact(run: dict) -> dict:

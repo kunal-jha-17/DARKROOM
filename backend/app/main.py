@@ -141,6 +141,7 @@ def _execute(run_id: str, req: ProbeRequest):
             entry_url=req.entry_url,
             goal=tinyfish.GOAL.format(site=req.platform, budget=600),
         )
+        tinyfish.save_run(run)  # full agent log, for debugging failed runs
         js = tinyfish.to_journey_state(run, req.platform, spec_id,
                                        logged_in=bool(profile_id))
 
@@ -163,6 +164,10 @@ def _execute(run_id: str, req: ProbeRequest):
             "probe_spec_id": spec_id,
             "observation_id": js.observation_id,
             "finding_id": found[0].finding_id if found else None,
+            # why it ended: the agent's own last few actions
+            "agent_actions": tinyfish.last_actions(run),
+            "profile_attached": run.get("profile_attached"),
+            "tinyfish_run_id": run.get("run_id"),
         }
     except Exception as e:
         RUNS[run_id] = {"status": "FAILED", "progress": str(e)[:200]}

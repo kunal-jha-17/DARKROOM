@@ -7,6 +7,11 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 DATABASE_URL = os.getenv(
     "DATABASE_URL", "postgresql://darkroom:darkroom@localhost:5432/darkroom"
 )
+# A relative SQLite path ("sqlite:///./darkroom.db") would land wherever uvicorn
+# was started from. Pin it to backend/ so there is only ever one database.
+if DATABASE_URL.startswith("sqlite:///./"):
+    _backend = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    DATABASE_URL = "sqlite:///" + os.path.join(_backend, DATABASE_URL[len("sqlite:///./"):])
 
 # SQLite needs this flag because main.py writes from a background thread.
 _connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
