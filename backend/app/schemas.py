@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
@@ -64,7 +64,7 @@ class Artifacts(BaseModel):
 class Condition(BaseModel):
     session: Literal["fresh", "returning", "logged_in"] = "fresh"
     run_index: int = 0
-    captured_at: datetime = Field(default_factory=datetime.utcnow)
+    captured_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ---------- the three contracts ----------
@@ -118,7 +118,7 @@ class Finding(BaseModel):
     clause: str
     evidence: dict = {}
     status: Literal["candidate", "confirmed"] = "candidate"
-    detected_at: datetime = Field(default_factory=datetime.utcnow)
+    detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 CLAUSE = {

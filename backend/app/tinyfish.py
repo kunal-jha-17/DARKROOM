@@ -21,7 +21,7 @@ EVIDENCE_DIR = Path(__file__).resolve().parents[1] / "evidence"
 
 def _headers() -> dict:
     # Read the key at call time, not import time, so main.py can start and
-    # serve seed data even when TINYFISH_API_KEY is not set yet.
+    # serve stored findings even when TINYFISH_API_KEY is not set yet.
     key = os.environ.get("TINYFISH_API_KEY")
     if not key:
         raise RuntimeError("TINYFISH_API_KEY is not set (put it in backend/.env)")
@@ -161,18 +161,38 @@ def get_run(run_id: str) -> dict:
     return r.json()
 
 
-def poll(run_id: str, timeout_s: int = 600) -> dict:
+def cancel(run_id: str) -> None:
+    """Stop a TinyFish run so a stuck agent stops using credits."""
+    try:
+        httpx.post(f"{RUNS}/{run_id}/cancel", headers=_headers(), timeout=30)
+    except Exception as e:
+        print("tinyfish: cancel failed:", e)
+
+
+def poll(run_id: str, timeout_s: int = 600, on_progress=None) -> dict:
     """Poll until terminal. Safer than SSE, which cannot resume.
-    The 300s agent limit only starts once TinyFish begins the run; queueing can
-    add minutes, so we wait longer than that before giving up."""
+    on_progress(data) is called on every poll so callers can show live actions.
+    TinyFish does not always enforce max_duration_seconds, so after timeout_s we
+    cancel the run ourselves instead of letting it loop on our credits."""
     deadline = time.time() + timeout_s
     data: dict = {}
     while time.time() < deadline:
         data = get_run(run_id)
         if data.get("status") in ("COMPLETED", "FAILED", "CANCELLED"):
             return data
+        if on_progress:
+            try:
+                on_progress(data)
+            except Exception:
+                pass
         time.sleep(5)
-    # Give up waiting, but keep whatever TinyFish has so far (actions, video).
+    cancel(run_id)
+    # Keep whatever TinyFish has so far (actions, video) and fetch once more,
+    # since cancelling finalises the run and its recording.
+    try:
+        data = get_run(run_id)
+    except Exception:
+        pass
     data = dict(data or {}, run_id=run_id)
     data["status"] = "TIMEOUT"
     return data
@@ -418,7 +438,7 @@ def to_journey_state(run: dict, platform: str, spec_id: str,
 
 
 def replay(spec: ProbeSpec, run_index: int,
-           profile_id: Optional[str] = None) -> JourneyState:
+           profile_id: Optional[str] = None, on_progress=None) -> JourneyState:
     """Re-run a KNOWN path. Same goal, same site, so runs stay comparable.
     Until the Browser API is wired, this re-runs the agent with the path pinned
     in the goal, which is already far more stable than a free exploration."""
@@ -438,7 +458,8 @@ def replay(spec: ProbeSpec, run_index: int,
     }, profile_id)
     r = httpx.post(f"{AGENT}/run-async", headers=headers, json=payload, timeout=60)
     r.raise_for_status()
-    run = poll(r.json()["run_id"])
+    run = poll(r.json()["run_id"], on_progress=on_progress)
+    save_run(run)
     return to_journey_state(run, spec.platform, spec.probe_spec_id, run_index,
                             logged_in=bool(profile_id))
 

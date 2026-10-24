@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import uuid
+from datetime import timezone
 
 from .schemas import CLAUSE, Finding, JourneyState
 
@@ -151,7 +152,9 @@ def _num(text: str | None) -> int | None:
 
 def false_urgency(earlier: JourneyState, later: JourneyState) -> Finding | None:
     """Needs two observations of the same spec, taken hours apart."""
-    hours = abs((later.condition.captured_at - earlier.condition.captured_at)
+    def _aware(t):
+        return t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+    hours = abs((_aware(later.condition.captured_at) - _aware(earlier.condition.captured_at))
                 .total_seconds()) / 3600
     if hours < 1:
         return None
