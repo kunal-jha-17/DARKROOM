@@ -69,14 +69,39 @@ GOAL = (
     "the payment page. "
     "Record, for every step: the price displayed, every line item in the cart with "
     "its amount, the text of any countdown timer, the text of any stock warning, "
-    "and the final total shown on the payment page. Return JSON only."
+    "and the final total shown on the payment page. "
+    "If a login, OTP, signup wall or bot check stops you, do NOT sign in: stop there "
+    "and still return every step you reached (listing, cart, etc.) with what you saw. "
+    "Return JSON only."
+)
+
+# Words the agent uses in its own action log when a site stops it.
+_BLOCKED_RE = re.compile(
+    r"\b(blocked|login required|sign[- ]?in required|requires? (login|sign[- ]?in|auth)"
+    r"|auth(entication)? (wall|required|requirement)|otp|captcha|access denied)\b",
+    re.I,
 )
 
 
-def discover(platform: str, entry_url: str, budget: int = 600) -> dict:
+def _profile(profile_id: Optional[str]) -> Optional[str]:
+    """Explicit profile, else TINYFISH_PROFILE_ID from .env, else none (fresh run)."""
+    return profile_id or os.environ.get("TINYFISH_PROFILE_ID") or None
+
+
+def _with_profile(payload: dict, profile_id: Optional[str]) -> dict:
+    """Attach a signed-in Browser Context Profile so login/OTP walls are already
+    passed. The profile's account must have NO saved card or UPI."""
+    if profile_id:
+        payload["use_profile"] = True
+        payload["profile_id"] = profile_id
+    return payload
+
+
+def discover(platform: str, entry_url: str, budget: int = 600,
+             profile_id: Optional[str] = None) -> dict:
     """Run the Agent API once to map a platform's checkout. Returns the raw run."""
     headers = _headers()
-    payload = {
+    payload = _with_profile({
         "url": entry_url,
         "goal": GOAL.format(site=platform, budget=budget),
         "output_schema": JOURNEY_SCHEMA,
@@ -85,7 +110,7 @@ def discover(platform: str, entry_url: str, budget: int = 600) -> dict:
         "agent_config": {"max_duration_seconds": 300},
         # capture_config is account-gated: a 403 means your key is not enabled.
         "capture_config": {"screenshots": True, "recording": True, "html": True},
-    }
+    }, profile_id)
     r = httpx.post(f"{AGENT}/run-async", headers=headers, json=payload, timeout=60)
     if r.status_code == 403:
         # fall back without capture rather than failing the run
@@ -173,7 +198,8 @@ def redact(run: dict) -> dict:
 
 
 def to_journey_state(run: dict, platform: str, spec_id: str,
-                     run_index: int = 0, download_video: bool = True) -> JourneyState:
+                     run_index: int = 0, download_video: bool = True,
+                     logged_in: bool = False) -> JourneyState:
     """Map a TinyFish run onto our contract. A bare list/text lands in result.result."""
     result = run.get("result") or {}
     if isinstance(result, dict) and "result" in result and "steps" not in result:
@@ -217,8 +243,13 @@ def to_journey_state(run: dict, platform: str, spec_id: str,
         outcome = "TIMEOUT"
     if err in ("SITE_BLOCKED", "TIMEOUT", "MAX_STEPS_EXCEEDED"):
         outcome = err
-    # The agent reports COMPLETED even when it gave up (e.g. "not a valid
-    # website"). No recorded checkout steps means the journey did not happen.
+    # The agent reports COMPLETED even when a login/OTP wall or bot check stopped
+    # it. Its own action log says so; record that as SITE_BLOCKED.
+    actions = " | ".join(a.get("action") or "" for a in (run.get("steps") or [])[-3:])
+    reached_payment = any("payment" in s["name"] for s in steps)
+    if outcome == "COMPLETED" and not reached_payment and _BLOCKED_RE.search(actions):
+        outcome = "SITE_BLOCKED"
+    # No recorded checkout steps at all means the journey did not happen.
     if outcome == "COMPLETED" and not steps:
         outcome = "FAILED"
 
@@ -231,7 +262,8 @@ def to_journey_state(run: dict, platform: str, spec_id: str,
         observation_id=f"obs_{uuid.uuid4().hex[:8]}",
         probe_spec_id=spec_id,
         platform=platform,
-        condition={"session": "fresh", "run_index": run_index},
+        condition={"session": "logged_in" if logged_in or run.get("profile_attached")
+                   else "fresh", "run_index": run_index},
         steps=steps,
         totals={
             "listed": _price(result.get("listed_price")),
@@ -242,7 +274,8 @@ def to_journey_state(run: dict, platform: str, spec_id: str,
     )
 
 
-def replay(spec: ProbeSpec, run_index: int) -> JourneyState:
+def replay(spec: ProbeSpec, run_index: int,
+           profile_id: Optional[str] = None) -> JourneyState:
     """Re-run a KNOWN path. Same goal, same site, so runs stay comparable.
     Until the Browser API is wired, this re-runs the agent with the path pinned
     in the goal, which is already far more stable than a free exploration."""
@@ -253,13 +286,27 @@ def replay(spec: ProbeSpec, run_index: int) -> JourneyState:
             a.label or a.action for a in spec.discovered_path if a.label or a.action
         )
         pinned += f" Follow exactly this path: {trail}."
-    payload = {
+    payload = _with_profile({
         "url": spec.entry_url,
         "goal": pinned,
         "output_schema": JOURNEY_SCHEMA,
+        "browser_profile": "stealth",
         "agent_config": {"max_duration_seconds": 300},
-    }
+    }, profile_id)
     r = httpx.post(f"{AGENT}/run-async", headers=headers, json=payload, timeout=60)
     r.raise_for_status()
     run = poll(r.json()["run_id"])
-    return to_journey_state(run, spec.platform, spec.probe_spec_id, run_index)
+    return to_journey_state(run, spec.platform, spec.probe_spec_id, run_index,
+                            logged_in=bool(profile_id))
+
+
+# ---------- one-time login setup (Browser Context Profiles) ----------
+
+def create_profile(name: str) -> dict:
+    """Create an empty profile. Then sign in to the site once in the TinyFish
+    dashboard's setup browser (you type the OTP), save it, and put the
+    profile id in .env as TINYFISH_PROFILE_ID."""
+    r = httpx.post(f"{AGENT.rsplit('/automation', 1)[0]}/profiles", headers=_headers(),
+                   json={"name": name, "set_as_default": False}, timeout=30)
+    r.raise_for_status()
+    return r.json()

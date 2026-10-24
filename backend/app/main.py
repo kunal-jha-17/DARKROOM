@@ -2,7 +2,7 @@ import json
 import threading
 import uuid
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 from dotenv import load_dotenv
 
@@ -114,12 +114,26 @@ class ProbeRequest(BaseModel):
     platform: str
     entry_url: str
     intent: Optional[str] = None
+    # "logged_in" uses a saved TinyFish Browser Context Profile so login/OTP
+    # walls are already passed. profile_id falls back to TINYFISH_PROFILE_ID.
+    session: Literal["fresh", "logged_in"] = "fresh"
+    profile_id: Optional[str] = None
+
+
+def _resolve_profile(session: str, profile_id: Optional[str]) -> Optional[str]:
+    if session != "logged_in":
+        return None
+    pid = tinyfish._profile(profile_id)
+    if not pid:
+        raise ValueError("session=logged_in needs a profile_id or TINYFISH_PROFILE_ID in .env")
+    return pid
 
 
 def _execute(run_id: str, req: ProbeRequest):
     RUNS[run_id] = {"status": "RUNNING", "progress": "discovering path"}
     try:
-        started = tinyfish.discover(req.platform, req.entry_url)
+        profile_id = _resolve_profile(req.session, req.profile_id)
+        started = tinyfish.discover(req.platform, req.entry_url, profile_id=profile_id)
         run = tinyfish.poll(started["run_id"])
         spec_id = f"spec_{uuid.uuid4().hex[:6]}"
         spec = ProbeSpec(
@@ -127,14 +141,17 @@ def _execute(run_id: str, req: ProbeRequest):
             entry_url=req.entry_url,
             goal=tinyfish.GOAL.format(site=req.platform, budget=600),
         )
-        js = tinyfish.to_journey_state(run, req.platform, spec_id)
+        js = tinyfish.to_journey_state(run, req.platform, spec_id,
+                                       logged_in=bool(profile_id))
 
         RUNS[run_id] = {"status": "RUNNING", "progress": "evaluating rules"}
         found = rules.evaluate(js) if js.outcome == "COMPLETED" else []
 
         with SessionLocal() as db:
+            # profile_id rides alongside the frozen ProbeSpec so replays reuse it
             db.add(SpecRow(probe_spec_id=spec_id, platform=spec.platform,
-                           data=json.loads(spec.model_dump_json())))
+                           data={**json.loads(spec.model_dump_json()),
+                                 "profile_id": profile_id}))
             _save_state(db, js)
             for f in found:
                 _save_finding(db, f)
@@ -177,13 +194,14 @@ def _replay(run_id: str, spec_id: str, n: int):
             if not row:
                 raise ValueError(f"spec {spec_id} not found")
             spec = ProbeSpec(**row.data)
+            profile_id = row.data.get("profile_id")
             prior = [JourneyState(**o.state) for o in db.query(ObservationRow)
                      .filter(ObservationRow.probe_spec_id == spec_id).all()]
 
         states = list(prior)
         for i in range(n):
             RUNS[run_id] = {"status": "RUNNING", "progress": f"replay {i + 1} of {n}"}
-            js = tinyfish.replay(spec, run_index=len(states))
+            js = tinyfish.replay(spec, run_index=len(states), profile_id=profile_id)
             with SessionLocal() as db:
                 _save_state(db, js)
                 db.commit()
