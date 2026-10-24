@@ -1,0 +1,363 @@
+{
+  "run_id": "aa80d0cc-a8be-4471-bbff-1a8ad05c9a08",
+  "status": "COMPLETED",
+  "goal": "Navigate to https://www.meesho.com to complete the goal: On Platform A, find a product priced under 600 rupees. Add exactly ONE to the cart. Proceed until the payment page is displayed. CRITICAL: do NOT enter any card details and do NOT submit payment. Stop at the payment page. Record, for every step: the price displayed, every line item in the cart with its amount, the text of any countdown timer, the text of any stock warning, and the final total shown on the payment page. Return JSON only.",
+  "created_at": "2026-10-24T11:02:07Z",
+  "started_at": "2026-10-24T11:02:30Z",
+  "finished_at": "2026-10-24T11:07:53Z",
+  "num_of_steps": 30,
+  "result": {
+    "steps": [],
+    "listed_price": 221,
+    "payment_page_total": 0
+  },
+  "output_schema": {
+    "type": "object",
+    "required": [
+      "steps"
+    ],
+    "properties": {
+      "steps": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "name",
+            "url"
+          ],
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "line_items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "amount"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "stock_text": {
+              "type": "string"
+            },
+            "timer_text": {
+              "type": "string"
+            },
+            "price_displayed": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "listed_price": {
+        "type": "number"
+      },
+      "payment_page_total": {
+        "type": "number"
+      }
+    }
+  },
+  "profile_attached": false,
+  "profile_id": null,
+  "error": null,
+  "streaming_url": "https://ip-204-236-178-137.tetra-data.production.tinyfish.io/tf-b1618eb7-179d-49f6-aab1-e77b9feae926/stream/0?<redacted>",
+  "browser_config": {
+    "proxy_enabled": false,
+    "proxy_country_code": null
+  },
+  "video_url": "https://eva-traces-production.s3.us-west-1.amazonaws.com/eva-traces/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/video/recording.webm?<redacted>",
+  "steps": [
+    {
+      "id": "e0328ec7-b11b-40cc-9328-2f195f6c30fb",
+      "timestamp": "2026-10-24T11:02:31Z",
+      "status": "RUNNING",
+      "action": "Navigate to Meesho homepage to start shopping task",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/e0328ec7-b11b-40cc-9328-2f195f6c30fb/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/e0328ec7-b11b-40cc-9328-2f195f6c30fb/html",
+      "duration": "1.2s"
+    },
+    {
+      "id": "e26411c3-0bd3-494e-9205-0bb4bdacb283",
+      "timestamp": "2026-10-24T11:02:36Z",
+      "status": "RUNNING",
+      "action": "Wait for page to fully load",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/e26411c3-0bd3-494e-9205-0bb4bdacb283/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/e26411c3-0bd3-494e-9205-0bb4bdacb283/html",
+      "duration": "3.2s"
+    },
+    {
+      "id": "d27b7d5a-9634-45cd-8826-438741676f3f",
+      "timestamp": "2026-10-24T11:02:44Z",
+      "status": "RUNNING",
+      "action": "See what is displayed on Meesho homepage",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/d27b7d5a-9634-45cd-8826-438741676f3f/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/d27b7d5a-9634-45cd-8826-438741676f3f/html",
+      "duration": "21.2s"
+    },
+    {
+      "id": "7d40ed43-9ad5-4f66-be0a-e7eda70e3cb7",
+      "timestamp": "2026-10-24T11:03:07Z",
+      "status": "RUNNING",
+      "action": "Search for products under 600 rupees on Meesho",
+      "screenshot": null,
+      "html": null,
+      "duration": "1.4s"
+    },
+    {
+      "id": "94b15297-e7e4-472f-a2ed-ac57eb2f169c",
+      "timestamp": "2026-10-24T11:03:10Z",
+      "status": "RUNNING",
+      "action": "Visit Meesho gadgets under 500 category page",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/94b15297-e7e4-472f-a2ed-ac57eb2f169c/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/94b15297-e7e4-472f-a2ed-ac57eb2f169c/html",
+      "duration": "1.4s"
+    },
+    {
+      "id": "54f6a8e7-c0b0-4e65-9292-f556cc691a14",
+      "timestamp": "2026-10-24T11:03:13Z",
+      "status": "RUNNING",
+      "action": "Wait for page content to load",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/54f6a8e7-c0b0-4e65-9292-f556cc691a14/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/54f6a8e7-c0b0-4e65-9292-f556cc691a14/html",
+      "duration": "5.3s"
+    },
+    {
+      "id": "930c7371-383a-4e85-968e-f5ab869ee62e",
+      "timestamp": "2026-10-24T11:03:20Z",
+      "status": "RUNNING",
+      "action": "Check what is displayed on the Meesho products page",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/930c7371-383a-4e85-968e-f5ab869ee62e/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/930c7371-383a-4e85-968e-f5ab869ee62e/html",
+      "duration": "5.4s"
+    },
+    {
+      "id": "8d5d217d-bd2a-4172-86a8-de0e025a1333",
+      "timestamp": "2026-10-24T11:03:27Z",
+      "status": "RUNNING",
+      "action": "Try Meesho mobile site for home decor products",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/8d5d217d-bd2a-4172-86a8-de0e025a1333/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/8d5d217d-bd2a-4172-86a8-de0e025a1333/html",
+      "duration": "1.3s"
+    },
+    {
+      "id": "6f2dbb51-af0b-4e46-a899-6924ec94f832",
+      "timestamp": "2026-10-24T11:03:30Z",
+      "status": "RUNNING",
+      "action": "Understand what is on the current page",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/6f2dbb51-af0b-4e46-a899-6924ec94f832/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/6f2dbb51-af0b-4e46-a899-6924ec94f832/html",
+      "duration": "1.6s"
+    },
+    {
+      "id": "0fc007c2-c6fd-4f29-b029-55cdbe4116f2",
+      "timestamp": "2026-10-24T11:03:34Z",
+      "status": "RUNNING",
+      "action": "Find Meesho product pages that are accessible",
+      "screenshot": null,
+      "html": null,
+      "duration": "1.6s"
+    },
+    {
+      "id": "801efa2c-795e-4fec-af71-947a097cd4d5",
+      "timestamp": "2026-10-24T11:03:37Z",
+      "status": "RUNNING",
+      "action": "Reconfigure browser with India proxy for Meesho access",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/801efa2c-795e-4fec-af71-947a097cd4d5/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/801efa2c-795e-4fec-af71-947a097cd4d5/html",
+      "duration": "2.1s"
+    },
+    {
+      "id": "d6c8929a-eb2e-427c-8cac-476ac98a85d5",
+      "timestamp": "2026-10-24T11:03:41Z",
+      "status": "RUNNING",
+      "action": "Visit Meesho homepage after reconfiguration",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/d6c8929a-eb2e-427c-8cac-476ac98a85d5/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/d6c8929a-eb2e-427c-8cac-476ac98a85d5/html",
+      "duration": "5.3s"
+    },
+    {
+      "id": "a2effe73-1783-4cdb-9009-94649782d057",
+      "timestamp": "2026-10-24T11:03:50Z",
+      "status": "RUNNING",
+      "action": "Click Trending/Budget Buys section",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/a2effe73-1783-4cdb-9009-94649782d057/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/a2effe73-1783-4cdb-9009-94649782d057/html",
+      "duration": "3.6s"
+    },
+    {
+      "id": "2f3fcaa6-eaf9-4fcb-bda0-52354f60949e",
+      "timestamp": "2026-10-24T11:03:57Z",
+      "status": "RUNNING",
+      "action": "Navigate to Budget Buys section for affordable products",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/2f3fcaa6-eaf9-4fcb-bda0-52354f60949e/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/2f3fcaa6-eaf9-4fcb-bda0-52354f60949e/html",
+      "duration": "11.8s"
+    },
+    {
+      "id": "441fc166-1451-4b30-b0a8-b5bfa233c6e7",
+      "timestamp": "2026-10-24T11:04:15Z",
+      "status": "RUNNING",
+      "action": "Navigate to product page for a \u20b9221 Mixer Grinder Jar",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/441fc166-1451-4b30-b0a8-b5bfa233c6e7/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/441fc166-1451-4b30-b0a8-b5bfa233c6e7/html",
+      "duration": "10.9s"
+    },
+    {
+      "id": "eabdfe28-6c05-4eae-b457-5a944aeb3e36",
+      "timestamp": "2026-10-24T11:04:31Z",
+      "status": "RUNNING",
+      "action": "Add mixer grinder jar to cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/eabdfe28-6c05-4eae-b457-5a944aeb3e36/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/eabdfe28-6c05-4eae-b457-5a944aeb3e36/html",
+      "duration": "10.8s"
+    },
+    {
+      "id": "42c04c65-215a-416d-8d96-2e38e536b2ab",
+      "timestamp": "2026-10-24T11:04:45Z",
+      "status": "RUNNING",
+      "action": "Check login/signup popup situation",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/42c04c65-215a-416d-8d96-2e38e536b2ab/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/42c04c65-215a-416d-8d96-2e38e536b2ab/html",
+      "duration": "2.3s"
+    },
+    {
+      "id": "0f1928a2-f348-44f5-9e2e-189e0f83f66c",
+      "timestamp": "2026-10-24T11:04:50Z",
+      "status": "RUNNING",
+      "action": "Dismiss login/signup popup",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/0f1928a2-f348-44f5-9e2e-189e0f83f66c/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/0f1928a2-f348-44f5-9e2e-189e0f83f66c/html",
+      "duration": "0.9s"
+    },
+    {
+      "id": "b2672f5e-f32c-4783-9e89-b40317aa83fb",
+      "timestamp": "2026-10-24T11:04:56Z",
+      "status": "RUNNING",
+      "action": "Get product details from PDP",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/b2672f5e-f32c-4783-9e89-b40317aa83fb/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/b2672f5e-f32c-4783-9e89-b40317aa83fb/html",
+      "duration": "1.7s"
+    },
+    {
+      "id": "0194ba9a-27e6-40bf-be36-9674f9d5a78c",
+      "timestamp": "2026-10-24T11:05:00Z",
+      "status": "RUNNING",
+      "action": "Navigate to budget buys category page",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/0194ba9a-27e6-40bf-be36-9674f9d5a78c/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/0194ba9a-27e6-40bf-be36-9674f9d5a78c/html",
+      "duration": "10.7s"
+    },
+    {
+      "id": "2f216899-1c05-4006-8776-640965e9388f",
+      "timestamp": "2026-10-24T11:05:16Z",
+      "status": "RUNNING",
+      "action": "Navigate to product page for \u20b9221 Mixer Grinder Jars",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/2f216899-1c05-4006-8776-640965e9388f/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/2f216899-1c05-4006-8776-640965e9388f/html",
+      "duration": "10.9s"
+    },
+    {
+      "id": "4f6bbf1c-f5a2-43e6-9ed3-15234dd577a3",
+      "timestamp": "2026-10-24T11:05:30Z",
+      "status": "RUNNING",
+      "action": "Add the \u20b9221 mixer grinder jar to cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/4f6bbf1c-f5a2-43e6-9ed3-15234dd577a3/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/4f6bbf1c-f5a2-43e6-9ed3-15234dd577a3/html",
+      "duration": "10.6s"
+    },
+    {
+      "id": "0a8d391c-b355-4f9d-913b-f3aa51e8f471",
+      "timestamp": "2026-10-24T11:05:46Z",
+      "status": "RUNNING",
+      "action": "Visit product page directly for the OWO mixer grinder jar",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/0a8d391c-b355-4f9d-913b-f3aa51e8f471/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/0a8d391c-b355-4f9d-913b-f3aa51e8f471/html",
+      "duration": "10.7s"
+    },
+    {
+      "id": "c4a33341-9f6c-4331-8208-776ae6779045",
+      "timestamp": "2026-10-24T11:06:02Z",
+      "status": "RUNNING",
+      "action": "Add mixer grinder jar to cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/c4a33341-9f6c-4331-8208-776ae6779045/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/c4a33341-9f6c-4331-8208-776ae6779045/html",
+      "duration": "10.8s"
+    },
+    {
+      "id": "03df09de-5850-46b6-893a-91a00d887970",
+      "timestamp": "2026-10-24T11:06:30Z",
+      "status": "RUNNING",
+      "action": "Visit budget buys page to find products under 600 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/03df09de-5850-46b6-893a-91a00d887970/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/03df09de-5850-46b6-893a-91a00d887970/html",
+      "duration": "10.8s"
+    },
+    {
+      "id": "cd637f4f-d421-46b6-872e-570ee95957b2",
+      "timestamp": "2026-10-24T11:06:45Z",
+      "status": "RUNNING",
+      "action": "Navigate to OWO Heavy Duty Bullet Jar Set product page",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/cd637f4f-d421-46b6-872e-570ee95957b2/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/cd637f4f-d421-46b6-872e-570ee95957b2/html",
+      "duration": "10.9s"
+    },
+    {
+      "id": "7d631df1-af8e-4c23-ada4-cf198e951ca3",
+      "timestamp": "2026-10-24T11:07:00Z",
+      "status": "RUNNING",
+      "action": "Add the \u20b9221 mixer grinder jar to cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/7d631df1-af8e-4c23-ada4-cf198e951ca3/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/7d631df1-af8e-4c23-ada4-cf198e951ca3/html",
+      "duration": "10.7s"
+    },
+    {
+      "id": "0365b7a6-bb82-4d0c-bf21-409ef9a418eb",
+      "timestamp": "2026-10-24T11:07:13Z",
+      "status": "RUNNING",
+      "action": "Visit product page directly for OWO Heavy Duty Bullet Jar Set",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/0365b7a6-bb82-4d0c-bf21-409ef9a418eb/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/0365b7a6-bb82-4d0c-bf21-409ef9a418eb/html",
+      "duration": "10.9s"
+    },
+    {
+      "id": "bb37b6fd-d817-42c0-a3d2-a23df765e68c",
+      "timestamp": "2026-10-24T11:07:28Z",
+      "status": "RUNNING",
+      "action": "Add OWO Heavy Duty Bullet Jar Set to cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/bb37b6fd-d817-42c0-a3d2-a23df765e68c/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/bb37b6fd-d817-42c0-a3d2-a23df765e68c/html",
+      "duration": "11.0s"
+    },
+    {
+      "id": "0616329b-9d2d-4d43-bedc-87628f8626b1",
+      "timestamp": "2026-10-24T11:07:45Z",
+      "status": "RUNNING",
+      "action": "Report findings - blocked by Meesho auth requirement",
+      "screenshot": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/0616329b-9d2d-4d43-bedc-87628f8626b1/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/aa80d0cc-a8be-4471-bbff-1a8ad05c9a08/steps/0616329b-9d2d-4d43-bedc-87628f8626b1/html",
+      "duration": "0.0s"
+    },
+    {
+      "id": "3fdc85b3-5260-4b88-a140-a2a61a1f8c9e",
+      "timestamp": "2026-10-24T11:07:52Z",
+      "status": "COMPLETED",
+      "action": "Task completed",
+      "screenshot": null,
+      "html": null,
+      "duration": null
+    }
+  ]
+}

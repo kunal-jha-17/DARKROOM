@@ -59,8 +59,21 @@ JOURNEY_SCHEMA = {
         },
         "listed_price": {"type": "number"},
         "payment_page_total": {"type": "number"},
+        # Flat fallbacks: live runs fill top-level fields more reliably than steps.
+        "product_name": {"type": "string"},
+        "payment_line_items": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "amount": {"type": "number"},
+                },
+                "required": ["name", "amount"],
+            },
+        },
     },
-    "required": ["steps"],
+    "required": ["steps", "listed_price", "payment_page_total"],
 }
 
 GOAL = (
@@ -71,6 +84,11 @@ GOAL = (
     "Record, for every step: the price displayed, every line item in the cart with "
     "its amount, the text of any countdown timer, the text of any stock warning, "
     "and the final total shown on the payment page. "
+    "The 'steps' array MUST have one entry for each page you visit, named exactly "
+    "'listing', 'cart', 'checkout' or 'payment', each with its url and price. "
+    "Also fill 'product_name', and 'payment_line_items' with EVERY row in the "
+    "payment page's price breakdown (product, delivery, fees, add-ons, discounts "
+    "as negative amounts). "
     "If a login, OTP, signup wall or bot check stops you, do NOT sign in: stop there "
     "and still return every step you reached (listing, cart, etc.) with what you saw. "
     "Return JSON only."
@@ -244,10 +262,47 @@ def to_journey_state(run: dict, platform: str, spec_id: str,
                              if s.get("stock_text") else []),
         })
 
+    listed = _price(result.get("listed_price"))
+    paid = _price(result.get("payment_page_total"))
+    pay_items = [
+        {"name": li["name"], "amount": float(li["amount"]), "added_by_us": False}
+        for li in (result.get("payment_line_items") or [])
+        if li.get("name") and li.get("amount") is not None
+    ]
+    # Live runs often return the totals but leave 'steps' empty. If the agent
+    # reported both ends of the journey, rebuild the minimum two steps from them
+    # so the run counts and the rules can read it.
+    if not steps and listed is not None and paid is not None:
+        product = result.get("product_name") or "product"
+        steps = [
+            {"index": 0, "name": "listing", "url": run.get("url") or "",
+             "price_displayed": listed, "line_items": [],
+             "timers": [], "stock_claims": []},
+            {"index": 1, "name": "payment", "url": "",
+             "price_displayed": paid,
+             "line_items": pay_items or [{"name": product, "amount": listed,
+                                          "added_by_us": True}],
+             "timers": [], "stock_claims": []},
+        ]
+    elif pay_items:
+        # Prefer the full breakdown on the payment step when the agent gave one.
+        pay_step = next((s for s in reversed(steps) if "payment" in s["name"]), None)
+        if pay_step is not None and len(pay_items) > len(pay_step["line_items"]):
+            pay_step["line_items"] = pay_items
+
     # The goal adds exactly ONE product, so the first line item to appear in the
     # journey is ours. Mark it added_by_us wherever it shows up; anything else
     # at checkout was put there by the platform (the basket-sneaking signal).
-    ours = next((s["line_items"][0]["name"] for s in steps if s["line_items"]), None)
+    # If the agent named the product, match on that rather than trusting row order
+    # (a breakdown can list "Delivery" before the product).
+    ours = None
+    pname = (result.get("product_name") or "").strip().lower()
+    if pname:
+        ours = next((li["name"] for s in steps for li in s["line_items"]
+                     if li["name"].strip().lower() in pname
+                     or pname in li["name"].strip().lower()), None)
+    if not ours:
+        ours = next((s["line_items"][0]["name"] for s in steps if s["line_items"]), None)
     if ours:
         key = ours.strip().lower()
         for s in steps:
