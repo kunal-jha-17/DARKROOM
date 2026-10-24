@@ -155,18 +155,27 @@ def discover(platform: str, entry_url: str, budget: int = 600,
     return r.json()
 
 
-def poll(run_id: str, timeout_s: int = 360) -> dict:
-    """Poll until terminal. Safer than SSE, which cannot resume."""
-    headers = _headers()
+def get_run(run_id: str) -> dict:
+    r = httpx.get(f"{RUNS}/{run_id}", headers=_headers(), timeout=30)
+    r.raise_for_status()
+    return r.json()
+
+
+def poll(run_id: str, timeout_s: int = 600) -> dict:
+    """Poll until terminal. Safer than SSE, which cannot resume.
+    The 300s agent limit only starts once TinyFish begins the run; queueing can
+    add minutes, so we wait longer than that before giving up."""
     deadline = time.time() + timeout_s
+    data: dict = {}
     while time.time() < deadline:
-        r = httpx.get(f"{RUNS}/{run_id}", headers=headers, timeout=30)
-        r.raise_for_status()
-        data = r.json()
+        data = get_run(run_id)
         if data.get("status") in ("COMPLETED", "FAILED", "CANCELLED"):
             return data
         time.sleep(5)
-    return {"status": "TIMEOUT", "run_id": run_id}
+    # Give up waiting, but keep whatever TinyFish has so far (actions, video).
+    data = dict(data or {}, run_id=run_id)
+    data["status"] = "TIMEOUT"
+    return data
 
 
 def _price(v) -> Optional[float]:
