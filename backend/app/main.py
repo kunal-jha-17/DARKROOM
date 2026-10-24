@@ -11,6 +11,7 @@ load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 from fastapi import FastAPI, HTTPException  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from fastapi.staticfiles import StaticFiles  # noqa: E402
 from pydantic import BaseModel  # noqa: E402
 
 from . import rules, tinyfish  # noqa: E402
@@ -27,6 +28,10 @@ app.add_middleware(
 
 SEED = Path(__file__).resolve().parents[2] / "seed"
 RUNS: dict[str, dict] = {}  # in-memory run status, fine for a hackathon
+
+# Downloaded recordings, served at /evidence/<run_id>.webm for the dashboard.
+tinyfish.EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/evidence", StaticFiles(directory=tinyfish.EVIDENCE_DIR), name="evidence")
 
 
 @app.on_event("startup")
@@ -188,6 +193,7 @@ def _replay(run_id: str, spec_id: str, n: int):
         completed = [s for s in states if s.outcome == "COMPLETED"]
         candidates = [f for s in completed for f in rules.evaluate(s)]
         confirmed = rules.confirm(candidates, len(completed))
+        confirmed += rules.evaluate_many(completed)
 
         with SessionLocal() as db:
             # replace this spec's per-run candidates with the merged findings

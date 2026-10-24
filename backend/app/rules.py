@@ -8,6 +8,39 @@ import uuid
 from .schemas import CLAUSE, Finding, JourneyState
 
 
+# Add-ons the platform slips in are PRODUCTS -> basket_sneaking.
+# Checked FIRST, because "Shipping protection" contains a fee word.
+ADDON_WORDS = (
+    "protection", "insurance", "warranty", "membership", "subscription",
+    "plan", "donation", "contribution", "tip", "assurance", "cover",
+)
+
+# Charges -> drip_pricing, never basket_sneaking.
+FEE_WORDS = (
+    "fee", "fees", "charge", "charges", "delivery", "shipping", "handling",
+    "packaging", "packing", "convenience", "platform", "surge", "tax", "gst",
+)
+
+# Whole words only, so "tip" does not match "Multipack" or "plan" "Planter".
+_ADDON_RE = re.compile(r"\b(" + "|".join(ADDON_WORDS) + r")\b", re.I)
+_FEE_RE = re.compile(r"\b(" + "|".join(FEE_WORDS) + r")\b", re.I)
+
+
+def _is_fee(name: str) -> bool:
+    if _ADDON_RE.search(name):
+        return False
+    return bool(_FEE_RE.search(name))
+
+
+def _last_step(js: JourneyState, *keys: str):
+    """Last step whose name contains any key. Live runs name steps
+    'payment page' or 'Cart', not exactly 'payment' or 'cart'."""
+    for s in reversed(js.steps):
+        if any(k in s.name.lower() for k in keys):
+            return s
+    return None
+
+
 def _fid() -> str:
     return f"f_{uuid.uuid4().hex[:6]}"
 
@@ -37,12 +70,28 @@ def drip_pricing(js: JourneyState) -> Finding | None:
 
 
 def basket_sneaking(js: JourneyState) -> Finding | None:
-    checkout = [s for s in js.steps if s.name in ("checkout", "payment")]
-    if not checkout:
+    """An item the platform ADDED - not a fee, and not the product we chose.
+    Fees are drip_pricing; counting them here double-reports the same rupees."""
+    cart = _last_step(js, "cart", "bag", "basket")
+    final = _last_step(js, "payment") or _last_step(js, "checkout")
+    if final is None:
         return None
-    sneaked = [li for li in checkout[-1].line_items if not li.added_by_us]
+
+    cart_names = {li.name for li in cart.line_items} if cart else set()
+    added_later = [
+        li for li in final.line_items
+        if li.name not in cart_names and not li.added_by_us
+    ]
+    flagged = [
+        li for li in final.line_items
+        if not li.added_by_us and li.name in cart_names
+    ]
+    candidates = added_later or flagged
+
+    sneaked = [li for li in candidates if not _is_fee(li.name)]
     if not sneaked:
         return None
+
     total = round(sum(li.amount for li in sneaked), 2)
     return Finding(
         finding_id=_fid(),
@@ -161,4 +210,15 @@ def confirm(findings: list[Finding], total_observations: int) -> list[Finding]:
         if hits > total_observations / 2:
             merged.status = "confirmed"
         out.append(merged)
+    return out
+
+
+def evaluate_many(states: list[JourneyState]) -> list[Finding]:
+    """Pairwise rules that evaluate() cannot reach - needs 2+ observations."""
+    out = []
+    ordered = sorted(states, key=lambda s: s.condition.captured_at)
+    if len(ordered) >= 2:
+        f = false_urgency(ordered[0], ordered[-1])
+        if f:
+            out.append(f)
     return out
