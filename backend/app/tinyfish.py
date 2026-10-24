@@ -131,13 +131,13 @@ def build_goal(platform: str, budget: int, intent: Optional[str] = None) -> str:
     return goal
 
 
-def discover(platform: str, entry_url: str, budget: int = 600,
-             profile_id: Optional[str] = None, intent: Optional[str] = None) -> dict:
-    """Run the Agent API once to map a platform's checkout. Returns the raw run."""
+def _start(url: str, goal: str, profile_id: Optional[str]) -> dict:
+    """Start one agent run. Probes and replays use exactly this payload, so a
+    replay is directly comparable to the original run and is recorded too."""
     headers = _headers()
     payload = _with_profile({
-        "url": entry_url,
-        "goal": build_goal(platform, budget, intent),
+        "url": url,
+        "goal": goal,
         "output_schema": JOURNEY_SCHEMA,
         "browser_profile": "stealth",
         # Do NOT send max_steps: it is beta-gated and returns 403 on a normal key.
@@ -153,6 +153,12 @@ def discover(platform: str, entry_url: str, budget: int = 600,
         r = httpx.post(f"{AGENT}/run-async", headers=headers, json=payload, timeout=60)
     r.raise_for_status()
     return r.json()
+
+
+def discover(platform: str, entry_url: str, budget: int = 600,
+             profile_id: Optional[str] = None, intent: Optional[str] = None) -> dict:
+    """Run the Agent API once to map a platform's checkout. Returns the raw run."""
+    return _start(entry_url, build_goal(platform, budget, intent), profile_id)
 
 
 def get_run(run_id: str) -> dict:
@@ -478,23 +484,14 @@ def replay(spec: ProbeSpec, run_index: int,
     """Re-run a KNOWN path. Same goal, same site, so runs stay comparable.
     Until the Browser API is wired, this re-runs the agent with the path pinned
     in the goal, which is already far more stable than a free exploration."""
-    headers = _headers()
     pinned = spec.goal or GOAL.format(site=spec.platform, budget=600)
     if spec.discovered_path:
         trail = " -> ".join(
             a.label or a.action for a in spec.discovered_path if a.label or a.action
         )
         pinned += f" Follow exactly this path: {trail}."
-    payload = _with_profile({
-        "url": spec.entry_url,
-        "goal": pinned,
-        "output_schema": JOURNEY_SCHEMA,
-        "browser_profile": "stealth",
-        "agent_config": {"max_duration_seconds": 300},
-    }, profile_id)
-    r = httpx.post(f"{AGENT}/run-async", headers=headers, json=payload, timeout=60)
-    r.raise_for_status()
-    run = poll(r.json()["run_id"], on_progress=on_progress)
+    started = _start(spec.entry_url, pinned, profile_id)
+    run = poll(started["run_id"], on_progress=on_progress)
     save_run(run)
     return to_journey_state(run, spec.platform, spec.probe_spec_id, run_index,
                             logged_in=bool(profile_id))
