@@ -1,0 +1,444 @@
+{
+  "run_id": "7e812308-e1fb-485a-bee0-de5ccb21f897",
+  "status": "COMPLETED",
+  "goal": "Navigate to https://www.meesho.com to complete the goal: FIRST open the cart on Meesho. If it already has any items, list their names in 'cart_items_before_adding', then REMOVE them all so the cart is empty. Then find a product priced under 200 rupees. Add exactly ONE to the cart. Proceed until the payment page is displayed. CRITICAL: do NOT enter any card details and do NOT submit payment. Stop at the payment page. Record, for every step: the price displayed, every line item in the cart with its amount, the text of any countdown timer, the text of any stock warning, and the final total shown on the payment page. The 'steps' array MUST have one entry for each page you visit, named exactly 'listing', 'cart', 'checkout' or 'payment', each with its url and price. Also fill 'product_name', and 'payment_line_items' with EVERY row in the payment page's price breakdown (product, delivery, fees, add-ons, discounts as negative amounts). If a login, OTP, signup wall or bot check stops you, do NOT sign in: stop there and still return every step you reached (listing, cart, etc.) with what you saw. After recording the payment page, go back and remove the product from the cart so the account is left empty. Return JSON only.",
+  "created_at": "2026-10-24T13:03:40Z",
+  "started_at": "2026-10-24T13:03:45Z",
+  "finished_at": "2026-10-24T13:08:48Z",
+  "num_of_steps": 27,
+  "result": {
+    "steps": [
+      {
+        "url": "https://www.meesho.com/natural-complete-protection-handwash-for-100-germ-protection-hand-hygiene-no-sls-no-paraben-500ml/p/7dp4e8",
+        "name": "listing",
+        "line_items": [
+          {
+            "name": "Natural Complete Protection Handwash For 100% Germ Protection & Hand Hygiene No SLS & No Paraben- 500ml",
+            "amount": 116
+          }
+        ],
+        "stock_text": "",
+        "timer_text": "",
+        "price_displayed": 116
+      },
+      {
+        "url": "https://www.meesho.com/mcheckout/cart?source=cart-icon",
+        "name": "cart",
+        "line_items": [
+          {
+            "name": "Natural Complete Protection Handwash For 100% Germ Protection & Hand Hygiene No SLS & No Paraben- 500ml",
+            "amount": 112
+          }
+        ],
+        "stock_text": "",
+        "timer_text": "",
+        "price_displayed": 112
+      },
+      {
+        "url": "https://www.meesho.com/mcheckout/checkout?source=cart",
+        "name": "checkout",
+        "line_items": [
+          {
+            "name": "Natural Complete Protection Handwash For 100% Germ Protection & Hand Hygiene No SLS & No Paraben- 500ml",
+            "amount": 112
+          }
+        ],
+        "stock_text": "",
+        "timer_text": "",
+        "price_displayed": 112
+      },
+      {
+        "url": "https://www.meesho.com/mcheckout/payment?source=checkout",
+        "name": "payment",
+        "line_items": [
+          {
+            "name": "Natural Complete Protection Handwash For 100% Germ Protection & Hand Hygiene No SLS & No Paraben- 500ml",
+            "amount": 116
+          },
+          {
+            "name": "Delivery",
+            "amount": 0
+          },
+          {
+            "name": "Discounts",
+            "amount": -4
+          }
+        ],
+        "stock_text": "",
+        "timer_text": "",
+        "price_displayed": 112
+      }
+    ],
+    "listed_price": 116,
+    "product_name": "Natural Complete Protection Handwash For 100% Germ Protection & Hand Hygiene No SLS & No Paraben- 500ml",
+    "payment_line_items": [
+      {
+        "name": "Natural Complete Protection Handwash For 100% Germ Protection & Hand Hygiene No SLS & No Paraben- 500ml",
+        "amount": 116
+      },
+      {
+        "name": "Delivery",
+        "amount": 0
+      },
+      {
+        "name": "Discounts",
+        "amount": -4
+      }
+    ],
+    "payment_page_total": 112,
+    "cart_items_before_adding": [
+      "Trendy New Mixer Grinder Jars"
+    ]
+  },
+  "output_schema": {
+    "type": "object",
+    "required": [
+      "steps",
+      "listed_price",
+      "payment_page_total"
+    ],
+    "properties": {
+      "steps": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "name",
+            "url"
+          ],
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "line_items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "amount"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "stock_text": {
+              "type": "string"
+            },
+            "timer_text": {
+              "type": "string"
+            },
+            "price_displayed": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "listed_price": {
+        "type": "number"
+      },
+      "product_name": {
+        "type": "string"
+      },
+      "payment_line_items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "name",
+            "amount"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "payment_page_total": {
+        "type": "number"
+      },
+      "cart_items_before_adding": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "profile_attached": true,
+  "profile_id": "prof_c7a9986291d243d1",
+  "error": null,
+  "streaming_url": "https://ip-54-241-42-93.tetra-data.production.tinyfish.io/tf-72f9099d-f722-4078-b813-b8d344d7989c/stream/0?<redacted>",
+  "browser_config": {
+    "proxy_enabled": true,
+    "proxy_country_code": "IN"
+  },
+  "video_url": "https://eva-traces-production.s3.us-west-1.amazonaws.com/eva-traces/7e812308-e1fb-485a-bee0-de5ccb21f897/video/recording.webm?<redacted>",
+  "steps": [
+    {
+      "id": "dcc572db-27e7-4a97-9c59-30e189dc6dcd",
+      "timestamp": "2026-10-24T13:03:46Z",
+      "status": "RUNNING",
+      "action": "Visit Meesho homepage to start the task",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/dcc572db-27e7-4a97-9c59-30e189dc6dcd/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/dcc572db-27e7-4a97-9c59-30e189dc6dcd/html",
+      "duration": "5.6s"
+    },
+    {
+      "id": "18413980-a8eb-4fac-bedf-35497dea8d2d",
+      "timestamp": "2026-10-24T13:03:57Z",
+      "status": "RUNNING",
+      "action": "Open the cart on Meesho",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/18413980-a8eb-4fac-bedf-35497dea8d2d/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/18413980-a8eb-4fac-bedf-35497dea8d2d/html",
+      "duration": "12.3s"
+    },
+    {
+      "id": "a42a246c-e53a-43a8-b38f-ca0ed5273ab5",
+      "timestamp": "2026-10-24T13:04:15Z",
+      "status": "RUNNING",
+      "action": "Remove item from cart to empty it",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/a42a246c-e53a-43a8-b38f-ca0ed5273ab5/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/a42a246c-e53a-43a8-b38f-ca0ed5273ab5/html",
+      "duration": "1.5s"
+    },
+    {
+      "id": "00cbb922-4592-464d-926b-3daa6f1cb0c4",
+      "timestamp": "2026-10-24T13:04:18Z",
+      "status": "RUNNING",
+      "action": "Confirm removal of product from cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/00cbb922-4592-464d-926b-3daa6f1cb0c4/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/00cbb922-4592-464d-926b-3daa6f1cb0c4/html",
+      "duration": "1.8s"
+    },
+    {
+      "id": "4a5b4a69-a4fa-46b2-99af-d333720f6d65",
+      "timestamp": "2026-10-24T13:04:22Z",
+      "status": "RUNNING",
+      "action": "Check if cart is now empty",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/4a5b4a69-a4fa-46b2-99af-d333720f6d65/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/4a5b4a69-a4fa-46b2-99af-d333720f6d65/html",
+      "duration": "1.3s"
+    },
+    {
+      "id": "2fd14222-3d58-44a4-be58-c56a01a0e045",
+      "timestamp": "2026-10-24T13:04:25Z",
+      "status": "RUNNING",
+      "action": "Start shopping to browse products",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/2fd14222-3d58-44a4-be58-c56a01a0e045/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/2fd14222-3d58-44a4-be58-c56a01a0e045/html",
+      "duration": "3.1s"
+    },
+    {
+      "id": "64946dd6-c098-471a-b81e-ce5747e9e24e",
+      "timestamp": "2026-10-24T13:04:30Z",
+      "status": "RUNNING",
+      "action": "Browse budget buys to find products under 200 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/64946dd6-c098-471a-b81e-ce5747e9e24e/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/64946dd6-c098-471a-b81e-ce5747e9e24e/html",
+      "duration": "10.7s"
+    },
+    {
+      "id": "50c8e34b-18a4-4e1e-a09a-fff2409d2676",
+      "timestamp": "2026-10-24T13:04:43Z",
+      "status": "RUNNING",
+      "action": "Find products under 200 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/50c8e34b-18a4-4e1e-a09a-fff2409d2676/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/50c8e34b-18a4-4e1e-a09a-fff2409d2676/html",
+      "duration": "5.2s"
+    },
+    {
+      "id": "909e9141-c53a-46cc-a07b-67272a14cbae",
+      "timestamp": "2026-10-24T13:04:56Z",
+      "status": "RUNNING",
+      "action": "Search for products under 200 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/909e9141-c53a-46cc-a07b-67272a14cbae/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/909e9141-c53a-46cc-a07b-67272a14cbae/html",
+      "duration": "1.9s"
+    },
+    {
+      "id": "ddea8953-b29a-4b2f-b481-444f25f092ad",
+      "timestamp": "2026-10-24T13:05:03Z",
+      "status": "RUNNING",
+      "action": "Submit search query for cheap items",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/ddea8953-b29a-4b2f-b481-444f25f092ad/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/ddea8953-b29a-4b2f-b481-444f25f092ad/html",
+      "duration": "1.7s"
+    },
+    {
+      "id": "2ecd8fe8-acb9-4f02-9a1d-b90d56965d4c",
+      "timestamp": "2026-10-24T13:05:08Z",
+      "status": "RUNNING",
+      "action": "Extract product names and prices under 200 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/2ecd8fe8-acb9-4f02-9a1d-b90d56965d4c/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/2ecd8fe8-acb9-4f02-9a1d-b90d56965d4c/html",
+      "duration": "3.5s"
+    },
+    {
+      "id": "bbcaf0ec-3dad-4d70-a3e8-47fa3c62f542",
+      "timestamp": "2026-10-24T13:05:14Z",
+      "status": "RUNNING",
+      "action": "View Handwash product priced at 95 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/bbcaf0ec-3dad-4d70-a3e8-47fa3c62f542/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/bbcaf0ec-3dad-4d70-a3e8-47fa3c62f542/html",
+      "duration": "12.6s"
+    },
+    {
+      "id": "04ae38ec-9c02-4173-b5a1-bc7b58ff2fbb",
+      "timestamp": "2026-10-24T13:05:33Z",
+      "status": "RUNNING",
+      "action": "Return to homepage from error page",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/04ae38ec-9c02-4173-b5a1-bc7b58ff2fbb/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/04ae38ec-9c02-4173-b5a1-bc7b58ff2fbb/html",
+      "duration": "12.9s"
+    },
+    {
+      "id": "cad36c4a-c5a4-4254-8eb8-edff9087b9bc",
+      "timestamp": "2026-10-24T13:05:53Z",
+      "status": "RUNNING",
+      "action": "Search for products under 200 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/cad36c4a-c5a4-4254-8eb8-edff9087b9bc/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/cad36c4a-c5a4-4254-8eb8-edff9087b9bc/html",
+      "duration": "1.9s"
+    },
+    {
+      "id": "0b2c5250-f393-47cb-95c7-2644623406eb",
+      "timestamp": "2026-10-24T13:05:59Z",
+      "status": "RUNNING",
+      "action": "Submit search for handwash products",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/0b2c5250-f393-47cb-95c7-2644623406eb/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/0b2c5250-f393-47cb-95c7-2644623406eb/html",
+      "duration": "11.1s"
+    },
+    {
+      "id": "098d28b2-caf9-4fd6-a46a-064fb94f4f7b",
+      "timestamp": "2026-10-24T13:06:16Z",
+      "status": "RUNNING",
+      "action": "View Unique Handwash product priced at 112 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/098d28b2-caf9-4fd6-a46a-064fb94f4f7b/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/098d28b2-caf9-4fd6-a46a-064fb94f4f7b/html",
+      "duration": "10.7s"
+    },
+    {
+      "id": "5f56f290-dacf-446b-8a2e-863287f66c3f",
+      "timestamp": "2026-10-24T13:06:31Z",
+      "status": "RUNNING",
+      "action": "Add the handwash product to cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/5f56f290-dacf-446b-8a2e-863287f66c3f/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/5f56f290-dacf-446b-8a2e-863287f66c3f/html",
+      "duration": "3.0s"
+    },
+    {
+      "id": "01c7105e-104a-431e-ac65-da85c40a5ad4",
+      "timestamp": "2026-10-24T13:06:41Z",
+      "status": "RUNNING",
+      "action": "Navigate to cart page",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/01c7105e-104a-431e-ac65-da85c40a5ad4/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/01c7105e-104a-431e-ac65-da85c40a5ad4/html",
+      "duration": "10.6s"
+    },
+    {
+      "id": "832d7a9f-da01-460e-9a57-714fef931b42",
+      "timestamp": "2026-10-24T13:06:56Z",
+      "status": "RUNNING",
+      "action": "Continue to address page to proceed to checkout",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/832d7a9f-da01-460e-9a57-714fef931b42/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/832d7a9f-da01-460e-9a57-714fef931b42/html",
+      "duration": "10.7s"
+    },
+    {
+      "id": "e648b15a-6f49-4666-bc6a-6c121164cb42",
+      "timestamp": "2026-10-24T13:07:11Z",
+      "status": "RUNNING",
+      "action": "Confirm delivery address and proceed to payment",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/e648b15a-6f49-4666-bc6a-6c121164cb42/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/e648b15a-6f49-4666-bc6a-6c121164cb42/html",
+      "duration": "10.9s"
+    },
+    {
+      "id": "5adb9922-6f6c-402f-8604-bbb5e2347e94",
+      "timestamp": "2026-10-24T13:07:25Z",
+      "status": "RUNNING",
+      "action": "Extract full payment page details",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/5adb9922-6f6c-402f-8604-bbb5e2347e94/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/5adb9922-6f6c-402f-8604-bbb5e2347e94/html",
+      "duration": "2.8s"
+    },
+    {
+      "id": "f970c6f0-6930-4e91-a39b-4951a8195a36",
+      "timestamp": "2026-10-24T13:07:31Z",
+      "status": "RUNNING",
+      "action": "Extract exact payment breakdown details",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/f970c6f0-6930-4e91-a39b-4951a8195a36/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/f970c6f0-6930-4e91-a39b-4951a8195a36/html",
+      "duration": "1.9s"
+    },
+    {
+      "id": "d7fe40d7-07cd-44c2-a67d-a676389b101c",
+      "timestamp": "2026-10-24T13:07:35Z",
+      "status": "RUNNING",
+      "action": "Go back to cart to remove the product",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/d7fe40d7-07cd-44c2-a67d-a676389b101c/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/d7fe40d7-07cd-44c2-a67d-a676389b101c/html",
+      "duration": "10.5s"
+    },
+    {
+      "id": "f13f7aa5-fb8a-4207-a6fd-aad8a8137a6d",
+      "timestamp": "2026-10-24T13:07:48Z",
+      "status": "RUNNING",
+      "action": "Remove product from cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/f13f7aa5-fb8a-4207-a6fd-aad8a8137a6d/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/f13f7aa5-fb8a-4207-a6fd-aad8a8137a6d/html",
+      "duration": "2.1s"
+    },
+    {
+      "id": "2df73810-70f4-4e32-abb4-92f1d01fa4b9",
+      "timestamp": "2026-10-24T13:07:55Z",
+      "status": "RUNNING",
+      "action": "Confirm removing product from cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/2df73810-70f4-4e32-abb4-92f1d01fa4b9/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/2df73810-70f4-4e32-abb4-92f1d01fa4b9/html",
+      "duration": "1.8s"
+    },
+    {
+      "id": "ddeea546-0ed8-47fe-b89c-cb9b4e2ddd45",
+      "timestamp": "2026-10-24T13:08:03Z",
+      "status": "RUNNING",
+      "action": "Wait for page to fully load after removal",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/ddeea546-0ed8-47fe-b89c-cb9b4e2ddd45/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/ddeea546-0ed8-47fe-b89c-cb9b4e2ddd45/html",
+      "duration": "3.5s"
+    },
+    {
+      "id": "991aaaf2-78ec-4733-9f70-65975047c13b",
+      "timestamp": "2026-10-24T13:08:39Z",
+      "status": "RUNNING",
+      "action": "Final submission of all steps and payment page details",
+      "screenshot": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/991aaaf2-78ec-4733-9f70-65975047c13b/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/7e812308-e1fb-485a-bee0-de5ccb21f897/steps/991aaaf2-78ec-4733-9f70-65975047c13b/html",
+      "duration": "0.4s"
+    },
+    {
+      "id": "c722f3a5-da8f-4df0-987c-ab6eeea64258",
+      "timestamp": "2026-10-24T13:08:48Z",
+      "status": "COMPLETED",
+      "action": "Task completed",
+      "screenshot": null,
+      "html": null,
+      "duration": null
+    }
+  ]
+}
