@@ -80,7 +80,7 @@ JOURNEY_SCHEMA = {
 GOAL = (
     "FIRST open the cart on {site}. If it already has any items, list their names in "
     "'cart_items_before_adding', then REMOVE them all so the cart is empty. "
-    "Then find a product priced under {budget} rupees. "
+    "{pick}"
     "Add exactly ONE to the cart. Proceed until the payment page is displayed. "
     "CRITICAL: do NOT enter any card details and do NOT submit payment. Stop at "
     "the payment page. "
@@ -122,9 +122,46 @@ def _with_profile(payload: dict, profile_id: Optional[str]) -> dict:
     return payload
 
 
-def build_goal(platform: str, budget: int, intent: Optional[str] = None) -> str:
+_PRODUCT_PATH = re.compile(
+    r"(/p/|/dp/|/gp/product/|/product[s]?/|/item[s]?/|/itm|/buy/|[?&](pid|productid|sku)=)", re.I)
+_LISTING_PATH = re.compile(r"(/search|[?&](q|query|k|keyword)=|/pl/|/clp/|/category|/c/|/collections?/)", re.I)
+
+
+def classify_url(url: Optional[str]) -> str:
+    """'product' (one product page), 'listing' (category/search) or 'home'.
+    Audits never need a product link: a homepage or category page is enough,
+    and the agent picks a product itself."""
+    if not url:
+        return "home"
+    rest = re.sub(r"^https?://[^/]+", "", url.strip())
+    if _PRODUCT_PATH.search(rest):
+        return "product"
+    if _LISTING_PATH.search(rest) or rest.strip("/"):
+        return "listing"
+    return "home"
+
+
+def _pick(entry_url: Optional[str], budget: int) -> str:
+    kind = classify_url(entry_url)
+    if kind == "product":
+        return ("Then go back to the start page " + (entry_url or "") + " - that product "
+                "is the one to audit. Use THIS product whatever its price; if it needs a "
+                "size or variant, pick the cheapest available one. If it cannot be "
+                "bought (out of stock or not deliverable), pick the closest similar "
+                "product instead and say so in 'product_name'. ")
+    if kind == "listing":
+        return ("Then go back to the start page " + (entry_url or "") + " and choose a "
+                f"product from it priced under {budget} rupees that is in stock and "
+                "deliverable. ")
+    return (f"Then pick any product on the site priced under {budget} rupees that is "
+            "in stock and deliverable to the saved address. Choose it yourself; no "
+            "product link is needed. ")
+
+
+def build_goal(platform: str, budget: int, intent: Optional[str] = None,
+               entry_url: Optional[str] = None) -> str:
     """Base goal plus platform-specific notes (e.g. how to order food)."""
-    goal = GOAL.format(site=platform, budget=budget)
+    goal = GOAL.format(site=platform, pick=_pick(entry_url, budget))
     if intent:
         goal += (" Platform-specific instructions (follow these, but every rule "
                  f"above still applies, especially never paying): {intent.strip()}")
@@ -158,7 +195,7 @@ def _start(url: str, goal: str, profile_id: Optional[str]) -> dict:
 def discover(platform: str, entry_url: str, budget: int = 600,
              profile_id: Optional[str] = None, intent: Optional[str] = None) -> dict:
     """Run the Agent API once to map a platform's checkout. Returns the raw run."""
-    return _start(entry_url, build_goal(platform, budget, intent), profile_id)
+    return _start(entry_url, build_goal(platform, budget, intent, entry_url), profile_id)
 
 
 def get_run(run_id: str) -> dict:
@@ -238,7 +275,8 @@ def _seconds(text: Optional[str]) -> Optional[int]:
 
 # Breakdown rows that summarise the order rather than being an item or a fee.
 _SUMMARY_RE = re.compile(
-    r"\b(product price|price \(\d+ items?\)|items? total|sub ?-?total|order total|grand total"
+    r"\bprice \(\d+ items?\)"
+    r"|\b(product price|items? total|sub ?-?total|order total|grand total"
     r"|total amount|total|amount payable|you pay|to pay|discounts?|savings|you save"
     r"|coupon|mrp|special price)\b", re.I)
 
@@ -484,7 +522,7 @@ def replay(spec: ProbeSpec, run_index: int,
     """Re-run a KNOWN path. Same goal, same site, so runs stay comparable.
     Until the Browser API is wired, this re-runs the agent with the path pinned
     in the goal, which is already far more stable than a free exploration."""
-    pinned = spec.goal or GOAL.format(site=spec.platform, budget=600)
+    pinned = spec.goal or build_goal(spec.platform, 600, None, spec.entry_url)
     if spec.discovered_path:
         trail = " -> ".join(
             a.label or a.action for a in spec.discovered_path if a.label or a.action

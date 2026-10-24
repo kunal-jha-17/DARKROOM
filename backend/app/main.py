@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import threading
 import uuid
 from datetime import datetime, timezone
@@ -189,8 +190,10 @@ def _save_finding(db, f: Finding) -> None:
 # ---------- probes: discover once ----------
 
 class ProbeRequest(BaseModel):
-    platform: str
-    entry_url: str
+    # Only the platform is needed: a name ("Flipkart"), a domain ("flipkart.com")
+    # or any page on the site. A product link is optional, never required.
+    platform: str = ""
+    entry_url: Optional[str] = None
     intent: Optional[str] = None
     # "logged_in" uses a saved TinyFish Browser Context Profile so login/OTP
     # walls are already passed. profile_id falls back to TINYFISH_PROFILE_ID.
@@ -215,12 +218,40 @@ PRESETS = {
 }
 
 
+_TLD = re.compile(r"\.(com|in|co\.in|net|org|store|shop|app)$")
+
+
+def platform_key(name: str) -> str:
+    """'Flipkart', 'flipkart.com', 'https://www.flipkart.com/x' -> 'flipkart'."""
+    n = (name or "").strip().lower()
+    n = re.sub(r"^https?://", "", n)
+    n = re.sub(r"^(www\.|m\.)", "", n).split("/")[0].split("?")[0]
+    return _TLD.sub("", n) or n
+
+
+def display_name(key: str) -> str:
+    return key[:1].upper() + key[1:] if key else key
+
+
 def _preset(req: "ProbeRequest") -> "ProbeRequest":
-    key = req.platform.strip().lower()
-    host = req.entry_url.lower()
+    url = (req.entry_url or "").strip()
+    raw = req.platform.strip() or url
+    if not raw:
+        raise HTTPException(422, "give a platform name, a domain or a page on the site")
+    key = platform_key(raw if req.platform.strip() else url)
+    if not url:
+        # No link given: start from the site's homepage and let the agent pick.
+        url = raw if raw.startswith("http") else (
+            "https://" + raw if "." in raw else f"https://www.{key}.com")
+    elif not url.startswith("http"):
+        url = "https://" + url
     preset = PRESETS.get(key) or next(
-        (v for k, v in PRESETS.items() if f"{k}." in host), {})
+        (v for k, v in PRESETS.items() if f"{k}." in url.lower()), {})
+    name = display_name(key) if (key in PRESETS or not req.platform.strip()
+                                 or "." in req.platform) else req.platform.strip()
     return req.model_copy(update={
+        "platform": name,
+        "entry_url": url,
         "session": req.session or preset.get("session", "fresh"),
         "budget": req.budget or preset.get("budget", 600),
         "intent": req.intent or preset.get("intent"),
@@ -262,7 +293,7 @@ def _execute(run_id: str, req: ProbeRequest):
         spec = ProbeSpec(
             probe_spec_id=spec_id, platform=req.platform,
             entry_url=req.entry_url,
-            goal=tinyfish.build_goal(req.platform, req.budget, req.intent),
+            goal=tinyfish.build_goal(req.platform, req.budget, req.intent, req.entry_url),
         )
         tinyfish.save_run(run)  # full agent log, for debugging failed runs
         js = tinyfish.to_journey_state(run, req.platform, spec_id,
@@ -291,6 +322,8 @@ def _execute(run_id: str, req: ProbeRequest):
             "progress": (f"{len(found)} finding(s)" if js.outcome == "COMPLETED" else why),
             "probe_spec_id": spec_id,
             "observation_id": js.observation_id,
+            "platform": req.platform,
+            "platform_key": platform_key(req.platform),
             "finding_id": found[0].finding_id if found else None,
             # why it ended: the agent's own last few actions
             "agent_actions": tinyfish.last_actions(run),
@@ -308,6 +341,121 @@ def create_probe(req: ProbeRequest):
     RUNS[run_id] = {"status": "PENDING", "progress": "queued"}
     threading.Thread(target=_execute, args=(run_id, req), daemon=True).start()
     return {"run_id": run_id, "status": "PENDING"}
+
+
+# ---------- platforms: every audit, with or without findings ----------
+
+def _product(state: dict):
+    for step in reversed(state.get("steps") or []):
+        for li in step.get("line_items") or []:
+            if li.get("added_by_us"):
+                return li.get("name")
+    return None
+
+
+def _audit(o, spec_urls: dict, finding_ids: dict) -> dict:
+    st = o.state or {}
+    pub = _public_state(st)
+    cond = st.get("condition") or {}
+    url = spec_urls.get(o.probe_spec_id)
+    return {
+        "observation_id": o.observation_id,
+        "probe_spec_id": o.probe_spec_id,
+        "outcome": o.outcome,
+        "captured_at": _utc(cond.get("captured_at")) or _utc(o.created_at.isoformat()),
+        "session": cond.get("session"),
+        "entry_url": url,
+        "entry_kind": tinyfish.classify_url(url) if url else None,
+        "product": _product(st),
+        "totals": st.get("totals") or {},
+        "video_ref": pub["artifacts"].get("video_ref"),
+        "steps": pub.get("steps", []),
+        "finding_ids": finding_ids.get(o.observation_id, []),
+        "note": _contamination(st),
+    }
+
+
+def _contamination(state: dict):
+    """Another product already in the basket makes the total incomparable
+    (early runs, before the agent emptied the cart first). Say so plainly."""
+    steps = state.get("steps") or []
+    final = next((s for s in reversed(steps)
+                  if any(k in (s.get("name") or "") for k in ("payment", "checkout"))), None)
+    if not final:
+        return None
+    others = [li.get("name") for li in final.get("line_items") or []
+              if not li.get("added_by_us") and not li.get("pre_existing")
+              and not rules._is_fee(li.get("name") or "")
+              and not rules._ADDON_RE.search(li.get("name") or "")]
+    if not others:
+        return None
+    return ("Another product (" + ", ".join(others) + ") was in the cart during this run, "
+            "so the total includes it and is not a like-for-like price.")
+
+
+def _load_platforms(db):
+    groups: dict[str, dict] = {}
+    spec_urls = {r.probe_spec_id: (r.data or {}).get("entry_url") for r in db.query(SpecRow).all()}
+    findings = [_public_finding(db, r.data) for r in db.query(FindingRow).all()]
+    by_obs: dict[str, list] = {}
+    for f in findings:
+        for oid in f.get("evidence", {}).get("observation_ids", []):
+            by_obs.setdefault(oid, []).append(f["finding_id"])
+    for o in db.query(ObservationRow).all():
+        k = platform_key(o.platform)
+        g = groups.setdefault(k, {"key": k, "names": [], "audits": [], "findings": []})
+        g["names"].append(o.platform)
+        g["audits"].append(_audit(o, spec_urls, by_obs))
+    for f in findings:
+        k = platform_key(f["platform"])
+        g = groups.setdefault(k, {"key": k, "names": [], "audits": [], "findings": []})
+        g["names"].append(f["platform"])
+        g["findings"].append(f)
+    for g in groups.values():
+        names = [n for n in g["names"] if n]
+        pretty = [n for n in names if n[:1].isupper()]
+        g["platform"] = pretty[-1] if pretty else display_name(g["key"])
+        g["audits"].sort(key=lambda a: a["captured_at"] or "", reverse=True)
+        g["findings"].sort(key=lambda f: f.get("detected_at") or "", reverse=True)
+    return groups
+
+
+def _summary(g: dict) -> dict:
+    done = [a for a in g["audits"] if a["outcome"] == "COMPLETED"]
+    added = sum(float((f.get("measure") or {}).get("delta_inr") or 0)
+                for f in g["findings"] if f.get("pattern") == "drip_pricing")
+    return {
+        "platform": g["platform"],
+        "key": g["key"],
+        "audits_completed": len(done),
+        "audits_failed": len(g["audits"]) - len(done),
+        "findings": len(g["findings"]),
+        "confirmed": sum(1 for f in g["findings"] if f.get("status") == "confirmed"),
+        "added_inr": round(added, 2),
+        "last_audit_at": g["audits"][0]["captured_at"] if g["audits"] else None,
+        "latest_video": next((a["video_ref"] for a in done if a["video_ref"]), None),
+    }
+
+
+@app.get("/api/platforms")
+def list_platforms():
+    """Every platform audited, including audits that found nothing."""
+    with SessionLocal() as db:
+        groups = _load_platforms(db)
+    rows = [_summary(g) for g in groups.values()]
+    rows.sort(key=lambda r: r["last_audit_at"] or "", reverse=True)
+    return {"platforms": rows}
+
+
+@app.get("/api/platforms/{name}")
+def get_platform(name: str):
+    """One platform: its summary, every audit (with video and price steps) and
+    its findings. name can be 'Flipkart', 'flipkart' or 'flipkart.com'."""
+    with SessionLocal() as db:
+        g = _load_platforms(db).get(platform_key(name))
+    if g is None:
+        raise HTTPException(404, "platform not audited yet")
+    return {**_summary(g), "audits": g["audits"], "findings_list": g["findings"]}
 
 
 @app.get("/api/presets")
