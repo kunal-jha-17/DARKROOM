@@ -227,7 +227,8 @@ def confirm(findings: list[Finding], total_observations: int) -> list[Finding]:
         merged.evidence["observation_ids"] = [
             oid for g in group for oid in g.evidence.get("observation_ids", [])
         ]
-        if hits > total_observations / 2:
+        # Confirmed means reproduced: at least 2 runs, and most of them.
+        if hits >= 2 and hits > total_observations / 2:
             merged.status = "confirmed"
         out.append(merged)
     return out

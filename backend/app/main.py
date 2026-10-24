@@ -122,6 +122,13 @@ def _reproduced_in(db, finding: dict) -> str:
     return f"{hits} of {max(total, hits)} observations"
 
 
+def _hits(reproduced: str) -> int:
+    try:
+        return int(reproduced.split()[0])
+    except (ValueError, IndexError, AttributeError):
+        return 0
+
+
 def _has_number(measure: dict) -> bool:
     return any(isinstance(v, (int, float)) and not isinstance(v, bool) and v != 0
                for v in (measure or {}).values())
@@ -134,8 +141,10 @@ def _public_finding(db, data: dict) -> dict:
     ev["reproduced_in"] = _reproduced_in(db, f)
     f["detected_at"] = _utc(f.get("detected_at"))
     # Integrity: confirmed only with a measured number, a recording and a clause.
+    # It must also be reproduced in at least 2 real runs.
     if f.get("status") == "confirmed" and not (
-            _has_number(f.get("measure")) and ev["video_ref"] and f.get("clause")):
+            _has_number(f.get("measure")) and ev["video_ref"] and f.get("clause")
+            and _hits(ev["reproduced_in"]) >= 2):
         f["status"] = "candidate"
     return f
 
