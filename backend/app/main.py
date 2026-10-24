@@ -137,13 +137,13 @@ def _execute(run_id: str, req: ProbeRequest):
     try:
         profile_id = _resolve_profile(req.session, req.profile_id)
         started = tinyfish.discover(req.platform, req.entry_url, budget=req.budget,
-                                    profile_id=profile_id)
+                                    profile_id=profile_id, intent=req.intent)
         run = tinyfish.poll(started["run_id"])
         spec_id = f"spec_{uuid.uuid4().hex[:6]}"
         spec = ProbeSpec(
             probe_spec_id=spec_id, platform=req.platform,
             entry_url=req.entry_url,
-            goal=tinyfish.GOAL.format(site=req.platform, budget=req.budget),
+            goal=tinyfish.build_goal(req.platform, req.budget, req.intent),
         )
         tinyfish.save_run(run)  # full agent log, for debugging failed runs
         js = tinyfish.to_journey_state(run, req.platform, spec_id,

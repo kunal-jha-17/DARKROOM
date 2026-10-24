@@ -122,13 +122,22 @@ def _with_profile(payload: dict, profile_id: Optional[str]) -> dict:
     return payload
 
 
+def build_goal(platform: str, budget: int, intent: Optional[str] = None) -> str:
+    """Base goal plus platform-specific notes (e.g. how to order food)."""
+    goal = GOAL.format(site=platform, budget=budget)
+    if intent:
+        goal += (" Platform-specific instructions (follow these, but every rule "
+                 f"above still applies, especially never paying): {intent.strip()}")
+    return goal
+
+
 def discover(platform: str, entry_url: str, budget: int = 600,
-             profile_id: Optional[str] = None) -> dict:
+             profile_id: Optional[str] = None, intent: Optional[str] = None) -> dict:
     """Run the Agent API once to map a platform's checkout. Returns the raw run."""
     headers = _headers()
     payload = _with_profile({
         "url": entry_url,
-        "goal": GOAL.format(site=platform, budget=budget),
+        "goal": build_goal(platform, budget, intent),
         "output_schema": JOURNEY_SCHEMA,
         "browser_profile": "stealth",
         # Do NOT send max_steps: it is beta-gated and returns 403 on a normal key.
