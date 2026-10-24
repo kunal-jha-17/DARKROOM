@@ -177,7 +177,13 @@ def poll(run_id: str, timeout_s: int = 600, on_progress=None) -> dict:
     deadline = time.time() + timeout_s
     data: dict = {}
     while time.time() < deadline:
-        data = get_run(run_id)
+        try:
+            data = get_run(run_id)
+        except (httpx.TimeoutException, httpx.TransportError) as e:
+            # One slow or dropped status check is not a failed run: retry.
+            print("tinyfish: status check failed, retrying:", e)
+            time.sleep(5)
+            continue
         if data.get("status") in ("COMPLETED", "FAILED", "CANCELLED"):
             return data
         if on_progress:

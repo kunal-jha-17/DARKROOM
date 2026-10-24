@@ -288,6 +288,32 @@ class ReplayRequest(BaseModel):
     runs: int = 3
 
 
+def confirm_spec(spec_id: str) -> tuple[list[Finding], int]:
+    """Re-run confirmation over every stored observation of a spec and replace
+    that spec's findings with the merged result. No new runs, no credits."""
+    with SessionLocal() as db:
+        row = db.get(SpecRow, spec_id)
+        if not row:
+            raise ValueError(f"spec {spec_id} not found")
+        platform = row.platform
+        states = [JourneyState(**o.state) for o in db.query(ObservationRow)
+                  .filter(ObservationRow.probe_spec_id == spec_id).all()]
+    completed = [s for s in states if s.outcome == "COMPLETED"]
+    candidates = [f for s in completed for f in rules.evaluate(s)]
+    merged = rules.confirm(candidates, len(completed))
+    merged += rules.evaluate_many(completed)
+
+    with SessionLocal() as db:
+        obs_ids = {s.observation_id for s in states}
+        for fr in db.query(FindingRow).filter(FindingRow.platform == platform).all():
+            if set(fr.data.get("evidence", {}).get("observation_ids", [])) & obs_ids:
+                db.delete(fr)
+        for f in merged:
+            _save_finding(db, f)
+        db.commit()
+    return merged, len(completed)
+
+
 def _replay(run_id: str, spec_id: str, n: int):
     try:
         with SessionLocal() as db:
@@ -296,41 +322,32 @@ def _replay(run_id: str, spec_id: str, n: int):
                 raise ValueError(f"spec {spec_id} not found")
             spec = ProbeSpec(**row.data)
             profile_id = row.data.get("profile_id")
-            prior = [JourneyState(**o.state) for o in db.query(ObservationRow)
-                     .filter(ObservationRow.probe_spec_id == spec_id).all()]
+            done = db.query(ObservationRow).filter(
+                ObservationRow.probe_spec_id == spec_id).count()
 
-        states = list(prior)
+        errors = 0
         for i in range(n):
-            RUNS[run_id] = {"status": "RUNNING", "progress": f"replay {i + 1} of {n}"}
-            js = tinyfish.replay(spec, run_index=len(states), profile_id=profile_id,
-                                 on_progress=_live(run_id, f"replay {i + 1} of {n}"))
+            label = f"replay {i + 1} of {n}"
+            RUNS[run_id] = {"status": "RUNNING", "progress": label}
+            try:
+                js = tinyfish.replay(spec, run_index=done + i, profile_id=profile_id,
+                                     on_progress=_live(run_id, label))
+            except Exception as e:  # one bad replay must not lose the others
+                print(f"{label} failed:", e)
+                errors += 1
+                continue
             with SessionLocal() as db:
                 _save_state(db, js)
                 db.commit()
-            states.append(js)
 
         RUNS[run_id] = {"status": "RUNNING", "progress": "confirming findings"}
-        completed = [s for s in states if s.outcome == "COMPLETED"]
-        candidates = [f for s in completed for f in rules.evaluate(s)]
-        confirmed = rules.confirm(candidates, len(completed))
-        confirmed += rules.evaluate_many(completed)
-
-        with SessionLocal() as db:
-            # replace this spec's per-run candidates with the merged findings
-            obs_ids = {s.observation_id for s in states}
-            for fr in db.query(FindingRow).filter(
-                    FindingRow.platform == spec.platform).all():
-                if set(fr.data.get("evidence", {}).get("observation_ids", [])) & obs_ids:
-                    db.delete(fr)
-            for f in confirmed:
-                _save_finding(db, f)
-            db.commit()
-
+        merged, total = confirm_spec(spec_id)
         RUNS[run_id] = {
             "status": "COMPLETED",
-            "progress": f"{len(confirmed)} finding(s) across {len(completed)} observations",
+            "progress": (f"{len(merged)} finding(s) across {total} observations"
+                         + (f", {errors} replay(s) errored" if errors else "")),
             "probe_spec_id": spec_id,
-            "finding_id": confirmed[0].finding_id if confirmed else None,
+            "finding_id": merged[0].finding_id if merged else None,
         }
     except Exception as e:
         RUNS[run_id] = {"status": "FAILED", "progress": str(e)[:200]}
