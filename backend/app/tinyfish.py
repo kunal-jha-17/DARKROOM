@@ -141,7 +141,7 @@ def _start(url: str, goal: str, profile_id: Optional[str]) -> dict:
         "output_schema": JOURNEY_SCHEMA,
         "browser_profile": "stealth",
         # Do NOT send max_steps: it is beta-gated and returns 403 on a normal key.
-        "agent_config": {"max_duration_seconds": 300},
+        "agent_config": {"max_duration_seconds": 600},
         # capture_config is account-gated: a 403 means your key is not enabled.
         "capture_config": {"screenshots": True, "recording": True, "html": True},
     }, profile_id)
@@ -175,7 +175,7 @@ def cancel(run_id: str) -> None:
         print("tinyfish: cancel failed:", e)
 
 
-def poll(run_id: str, timeout_s: int = 600, on_progress=None) -> dict:
+def poll(run_id: str, timeout_s: int = 900, on_progress=None) -> dict:
     """Poll until terminal. Safer than SSE, which cannot resume.
     on_progress(data) is called on every poll so callers can show live actions.
     TinyFish does not always enforce max_duration_seconds, so after timeout_s we

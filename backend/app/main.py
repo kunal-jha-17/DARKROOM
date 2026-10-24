@@ -194,11 +194,37 @@ class ProbeRequest(BaseModel):
     intent: Optional[str] = None
     # "logged_in" uses a saved TinyFish Browser Context Profile so login/OTP
     # walls are already passed. profile_id falls back to TINYFISH_PROFILE_ID.
-    session: Literal["fresh", "logged_in"] = "fresh"
+    # Left unset, a known platform's preset decides; otherwise "fresh".
+    session: Optional[Literal["fresh", "logged_in"]] = None
     profile_id: Optional[str] = None
     # Price ceiling for the product the agent picks. Cheaper items are more
     # likely to sit below free-delivery thresholds, where fees show up.
-    budget: int = 600
+    budget: Optional[int] = None
+
+
+_PRICE_INTENT = ("Use the saved delivery address. On the order summary and payment "
+                 "page, record EVERY line of the price details: price, discount, "
+                 "delivery charges, platform fee, any other fee, any pre-selected "
+                 "add-on or donation, and the total amount. Never pay.")
+
+# Settings proven on real runs. The frontend only sends {platform, entry_url},
+# so a live test from the dashboard picks these up automatically.
+PRESETS = {
+    "flipkart": {"session": "logged_in", "budget": 150, "intent": _PRICE_INTENT},
+    "meesho": {"session": "logged_in", "budget": 200, "intent": _PRICE_INTENT},
+}
+
+
+def _preset(req: "ProbeRequest") -> "ProbeRequest":
+    key = req.platform.strip().lower()
+    host = req.entry_url.lower()
+    preset = PRESETS.get(key) or next(
+        (v for k, v in PRESETS.items() if f"{k}." in host), {})
+    return req.model_copy(update={
+        "session": req.session or preset.get("session", "fresh"),
+        "budget": req.budget or preset.get("budget", 600),
+        "intent": req.intent or preset.get("intent"),
+    })
 
 
 def _resolve_profile(session: str, profile_id: Optional[str]) -> Optional[str]:
@@ -277,10 +303,19 @@ def _execute(run_id: str, req: ProbeRequest):
 
 @app.post("/api/probes")
 def create_probe(req: ProbeRequest):
+    req = _preset(req)
     run_id = f"run_{uuid.uuid4().hex[:8]}"
     RUNS[run_id] = {"status": "PENDING", "progress": "queued"}
     threading.Thread(target=_execute, args=(run_id, req), daemon=True).start()
     return {"run_id": run_id, "status": "PENDING"}
+
+
+@app.get("/api/presets")
+def presets():
+    """Platforms with tested settings, for a 'run a live test' picker."""
+    return {"presets": [{"platform": k.capitalize(), "entry_url": f"https://www.{k}.com",
+                         "session": v["session"], "budget": v["budget"]}
+                        for k, v in PRESETS.items()]}
 
 
 @app.get("/api/runs/{run_id}")
