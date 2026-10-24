@@ -22,6 +22,7 @@ class LineItem(BaseModel):
     name: str
     amount: float
     added_by_us: bool = False  # False here is what proves basket sneaking
+    pre_existing: bool = False  # was already in the account's cart before the run
 
 
 class Checkbox(BaseModel):

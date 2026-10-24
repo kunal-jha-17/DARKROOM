@@ -61,6 +61,7 @@ JOURNEY_SCHEMA = {
         "payment_page_total": {"type": "number"},
         # Flat fallbacks: live runs fill top-level fields more reliably than steps.
         "product_name": {"type": "string"},
+        "cart_items_before_adding": {"type": "array", "items": {"type": "string"}},
         "payment_line_items": {
             "type": "array",
             "items": {
@@ -77,7 +78,9 @@ JOURNEY_SCHEMA = {
 }
 
 GOAL = (
-    "On {site}, find a product priced under {budget} rupees. "
+    "FIRST open the cart on {site}. If it already has any items, list their names in "
+    "'cart_items_before_adding', then REMOVE them all so the cart is empty. "
+    "Then find a product priced under {budget} rupees. "
     "Add exactly ONE to the cart. Proceed until the payment page is displayed. "
     "CRITICAL: do NOT enter any card details and do NOT submit payment. Stop at "
     "the payment page. "
@@ -91,13 +94,16 @@ GOAL = (
     "as negative amounts). "
     "If a login, OTP, signup wall or bot check stops you, do NOT sign in: stop there "
     "and still return every step you reached (listing, cart, etc.) with what you saw. "
+    "After recording the payment page, go back and remove the product from the "
+    "cart so the account is left empty. "
     "Return JSON only."
 )
 
 # Words the agent uses in its own action log when a site stops it.
 _BLOCKED_RE = re.compile(
     r"\b(blocked|login required|sign[- ]?in required|requires? (login|sign[- ]?in|auth)"
-    r"|auth(entication)? (wall|required|requirement)|otp|captcha|access denied)\b",
+    r"|auth(entication)? (wall|required|requirement)|otp|captcha|access denied"
+    r"|not accessible|inaccessible|unreachable|empty responses?|geo[- ]?block\w*)\b",
     re.I,
 )
 
@@ -180,6 +186,45 @@ def _seconds(text: Optional[str]) -> Optional[int]:
     return total if found else None
 
 
+# Breakdown rows that summarise the order rather than being an item or a fee.
+_SUMMARY_RE = re.compile(
+    r"\b(product price|price \(\d+ items?\)|items? total|sub ?-?total|order total|grand total"
+    r"|total amount|total|amount payable|you pay|to pay|discounts?|savings|you save"
+    r"|coupon|mrp|special price)\b", re.I)
+
+# Agent filler meaning "nothing there": N/A, none, "no stock warnings visible",
+# or a timer it saw on some OTHER product.
+_EMPTY_CLAIM_RE = re.compile(
+    r"^\s*(n/?a|none|nil|null|-+|no\b.*|.*\bnot (visible|shown|found|present)\b.*"
+    r"|.*\bother products?\b.*)\s*$", re.I)
+
+
+def _claim(text: Optional[str]) -> Optional[str]:
+    if not text or _EMPTY_CLAIM_RE.match(text):
+        return None
+    return text
+
+
+def _is_summary(name: str) -> bool:
+    return bool(_SUMMARY_RE.search(name))
+
+
+_STOP = {"the", "and", "for", "with", "set", "of", "pack", "item", "from", "listing", "new"}
+
+
+def _tokens(name: str) -> set:
+    return {w.rstrip("s") for w in re.findall(r"[a-z]{3,}", name.lower())} - _STOP
+
+
+def _is_ours(name: str, amount: float, product: str, listed: Optional[float]) -> bool:
+    """The product we added. Names drift between pages ('OWO Heavy Duty Bullet
+    Jar Set...' on the listing, 'Mixer Grinder Jars' at payment), so match on
+    shared words or on the listed price."""
+    if listed is not None and abs(amount - listed) < 1:
+        return True
+    return bool(product) and len(_tokens(name) & _tokens(product)) >= 2
+
+
 def _count(text: Optional[str]) -> Optional[int]:
     m = re.search(r"\d+", text or "")
     return int(m.group()) if m else None
@@ -255,11 +300,14 @@ def to_journey_state(run: dict, platform: str, spec_id: str,
                 {"name": li["name"], "amount": float(li["amount"]), "added_by_us": False}
                 for li in (s.get("line_items") or [])
                 if li.get("name") and li.get("amount") is not None
+                and float(li["amount"]) > 0 and not _is_summary(li["name"])
             ],
-            "timers": ([{"label": s["timer_text"], "seconds_left": _seconds(s["timer_text"])}]
-                       if s.get("timer_text") else []),
-            "stock_claims": ([{"text": s["stock_text"], "value": _count(s["stock_text"])}]
-                             if s.get("stock_text") else []),
+            "timers": ([{"label": _claim(s.get("timer_text")),
+                         "seconds_left": _seconds(_claim(s.get("timer_text")))}]
+                       if _claim(s.get("timer_text")) else []),
+            "stock_claims": ([{"text": _claim(s.get("stock_text")),
+                               "value": _count(_claim(s.get("stock_text")))}]
+                             if _claim(s.get("stock_text")) else []),
         })
 
     listed = _price(result.get("listed_price"))
@@ -268,6 +316,7 @@ def to_journey_state(run: dict, platform: str, spec_id: str,
         {"name": li["name"], "amount": float(li["amount"]), "added_by_us": False}
         for li in (result.get("payment_line_items") or [])
         if li.get("name") and li.get("amount") is not None
+        and float(li["amount"]) > 0 and not _is_summary(li["name"])
     ]
     # Live runs often return the totals but leave 'steps' empty. If the agent
     # reported both ends of the journey, rebuild the minimum two steps from them
@@ -290,25 +339,27 @@ def to_journey_state(run: dict, platform: str, spec_id: str,
         if pay_step is not None and len(pay_items) > len(pay_step["line_items"]):
             pay_step["line_items"] = pay_items
 
-    # The goal adds exactly ONE product, so the first line item to appear in the
-    # journey is ours. Mark it added_by_us wherever it shows up; anything else
-    # at checkout was put there by the platform (the basket-sneaking signal).
-    # If the agent named the product, match on that rather than trusting row order
-    # (a breakdown can list "Delivery" before the product).
-    ours = None
-    pname = (result.get("product_name") or "").strip().lower()
-    if pname:
-        ours = next((li["name"] for s in steps for li in s["line_items"]
-                     if li["name"].strip().lower() in pname
-                     or pname in li["name"].strip().lower()), None)
-    if not ours:
-        ours = next((s["line_items"][0]["name"] for s in steps if s["line_items"]), None)
-    if ours:
-        key = ours.strip().lower()
-        for s in steps:
-            for li in s["line_items"]:
-                if li["name"].strip().lower() == key:
-                    li["added_by_us"] = True
+    # Mark the product we added, at most one row per step. Everything else at
+    # checkout was not chosen by us: a fee (drip pricing), an add-on (basket
+    # sneaking) or something already in the cart before we started.
+    product = (result.get("product_name") or "").strip()
+    if not product:
+        product = next((s["line_items"][0]["name"] for s in steps if s["line_items"]), "")
+    for st in steps:
+        for li in st["line_items"]:
+            if _is_ours(li["name"], li["amount"], product, listed):
+                li["added_by_us"] = True
+                break
+
+    # Items the agent found in the cart before adding ours (account leftovers).
+    pre_existing = [n for n in (result.get("cart_items_before_adding") or [])
+                    if isinstance(n, str) and n.strip()]
+    for st in steps:
+        for li in st["line_items"]:
+            if not li["added_by_us"] and any(
+                    len(_tokens(li["name"]) & _tokens(n)) >= 1 or
+                    li["name"].strip().lower() == n.strip().lower() for n in pre_existing):
+                li["pre_existing"] = True
 
     status = run.get("status", "FAILED")
     err = (run.get("error") or {}).get("code", "")
@@ -354,7 +405,7 @@ def replay(spec: ProbeSpec, run_index: int,
     Until the Browser API is wired, this re-runs the agent with the path pinned
     in the goal, which is already far more stable than a free exploration."""
     headers = _headers()
-    pinned = GOAL.format(site=spec.platform, budget=600)
+    pinned = spec.goal or GOAL.format(site=spec.platform, budget=600)
     if spec.discovered_path:
         trail = " -> ".join(
             a.label or a.action for a in spec.discovered_path if a.label or a.action

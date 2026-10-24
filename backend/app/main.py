@@ -118,6 +118,9 @@ class ProbeRequest(BaseModel):
     # walls are already passed. profile_id falls back to TINYFISH_PROFILE_ID.
     session: Literal["fresh", "logged_in"] = "fresh"
     profile_id: Optional[str] = None
+    # Price ceiling for the product the agent picks. Cheaper items are more
+    # likely to sit below free-delivery thresholds, where fees show up.
+    budget: int = 600
 
 
 def _resolve_profile(session: str, profile_id: Optional[str]) -> Optional[str]:
@@ -133,13 +136,14 @@ def _execute(run_id: str, req: ProbeRequest):
     RUNS[run_id] = {"status": "RUNNING", "progress": "discovering path"}
     try:
         profile_id = _resolve_profile(req.session, req.profile_id)
-        started = tinyfish.discover(req.platform, req.entry_url, profile_id=profile_id)
+        started = tinyfish.discover(req.platform, req.entry_url, budget=req.budget,
+                                    profile_id=profile_id)
         run = tinyfish.poll(started["run_id"])
         spec_id = f"spec_{uuid.uuid4().hex[:6]}"
         spec = ProbeSpec(
             probe_spec_id=spec_id, platform=req.platform,
             entry_url=req.entry_url,
-            goal=tinyfish.GOAL.format(site=req.platform, budget=600),
+            goal=tinyfish.GOAL.format(site=req.platform, budget=req.budget),
         )
         tinyfish.save_run(run)  # full agent log, for debugging failed runs
         js = tinyfish.to_journey_state(run, req.platform, spec_id,

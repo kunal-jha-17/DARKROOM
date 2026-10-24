@@ -45,11 +45,27 @@ def _fid() -> str:
     return f"f_{uuid.uuid4().hex[:6]}"
 
 
+def _other_items(js: JourneyState) -> float:
+    """Price of products in the final basket that are not ours and not fees or
+    add-ons, e.g. leftovers from an earlier session. They are not a hidden
+    charge, so they are added to the baseline instead of counted as drip."""
+    final = _last_step(js, "payment") or _last_step(js, "checkout")
+    if final is None:
+        return 0.0
+    # Add-ons are excluded here because basket_sneaking already reports them;
+    # counting them as drip too would double-report the same rupees.
+    return sum(li.amount for li in final.line_items
+               if not li.added_by_us and li.amount > 0 and not _is_fee(li.name))
+
+
 def drip_pricing(js: JourneyState) -> Finding | None:
     listed, paid = js.totals.listed, js.totals.payment_page
-    if listed is None or paid is None or listed <= 0 or paid <= listed:
+    if listed is None or paid is None or listed <= 0:
         return None
-    delta = round(paid - listed, 2)
+    baseline = listed + _other_items(js)
+    if paid <= baseline:
+        return None
+    delta = round(paid - baseline, 2)
     return Finding(
         finding_id=_fid(),
         platform=js.platform,
@@ -58,8 +74,9 @@ def drip_pricing(js: JourneyState) -> Finding | None:
         measure={
             "delta_inr": delta,
             "delta_pct": round(delta / listed * 100, 2),
-            "from": listed,
+            "from": round(baseline, 2),  # listed price + other items in the basket
             "to": paid,
+            "listed": listed,
         },
         clause=CLAUSE["drip_pricing"],
         evidence={
@@ -78,15 +95,15 @@ def basket_sneaking(js: JourneyState) -> Finding | None:
         return None
 
     cart_names = {li.name for li in cart.line_items} if cart else set()
-    added_later = [
-        li for li in final.line_items
-        if li.name not in cart_names and not li.added_by_us
-    ]
-    flagged = [
-        li for li in final.line_items
-        if not li.added_by_us and li.name in cart_names
-    ]
-    candidates = added_later or flagged
+    mine = lambda li: li.added_by_us or li.pre_existing
+    # Added between the cart and payment: the classic checkout sneak.
+    added_later = [li for li in final.line_items
+                   if li.name not in cart_names and not mine(li)]
+    # Already in the cart but not chosen by us. Only an add-on (protection,
+    # warranty, donation...) counts; an unnamed leftover product does not.
+    in_cart = [li for li in final.line_items
+               if li.name in cart_names and not mine(li) and _ADDON_RE.search(li.name)]
+    candidates = added_later + in_cart
 
     sneaked = [li for li in candidates if not _is_fee(li.name)]
     if not sneaked:
