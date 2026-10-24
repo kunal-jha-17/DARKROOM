@@ -1,0 +1,508 @@
+{
+  "run_id": "09c417f2-6e42-4160-8b16-6175d7f5a2df",
+  "status": "COMPLETED",
+  "goal": "Navigate to https://www.flipkart.com to complete the goal: FIRST open the cart on Flipkart. If it already has any items, list their names in 'cart_items_before_adding', then REMOVE them all so the cart is empty. Then find a product priced under 150 rupees. Add exactly ONE to the cart. Proceed until the payment page is displayed. CRITICAL: do NOT enter any card details and do NOT submit payment. Stop at the payment page. Record, for every step: the price displayed, every line item in the cart with its amount, the text of any countdown timer, the text of any stock warning, and the final total shown on the payment page. The 'steps' array MUST have one entry for each page you visit, named exactly 'listing', 'cart', 'checkout' or 'payment', each with its url and price. Also fill 'product_name', and 'payment_line_items' with EVERY row in the payment page's price breakdown (product, delivery, fees, add-ons, discounts as negative amounts). If a login, OTP, signup wall or bot check stops you, do NOT sign in: stop there and still return every step you reached (listing, cart, etc.) with what you saw. After recording the payment page, go back and remove the product from the cart so the account is left empty. Return JSON only. Platform-specific instructions (follow these, but every rule above still applies, especially never paying): Use the saved delivery address. On the order summary and payment page, record EVERY line of the price details: price, discount, delivery charges, platform fee, protect promise fee, any other fee, any pre-selected add-on or donation, and the total amount. Never pay.",
+  "created_at": "2026-10-24T13:54:50Z",
+  "started_at": "2026-10-24T13:54:55Z",
+  "finished_at": "2026-10-24T14:01:13Z",
+  "num_of_steps": 22,
+  "result": {
+    "steps": [
+      {
+        "url": "https://www.flipkart.com/viewcart",
+        "name": "cart",
+        "line_items": [
+          {
+            "name": "Tibra Collection Men Solid Straight Kurta",
+            "amount": 253
+          },
+          {
+            "name": "filbay Back Cover for Vivo V70 Elite 5G",
+            "amount": 154
+          },
+          {
+            "name": "SHAPEON Beard Growth and Mooch Hair Growth Oil",
+            "amount": 0
+          },
+          {
+            "name": "MUSCLEBLAZE Shaker Bottle",
+            "amount": 0
+          },
+          {
+            "name": "RADECOR Microfiber 0 GSM Bath Towel",
+            "amount": 0
+          },
+          {
+            "name": "GOBOULT StormX Wired Earphones",
+            "amount": 0
+          },
+          {
+            "name": "boAt boAt Bassheads 103 Wired Earphones",
+            "amount": 0
+          },
+          {
+            "name": "HIGHLANDER Slim Men Blue Jeans",
+            "amount": 0
+          },
+          {
+            "name": "BOZTI Back Cover for Mi Redmi Note 10 Pro",
+            "amount": 0
+          },
+          {
+            "name": "Lee-Star LE-821 400 W Mixer Grinder",
+            "amount": 0
+          },
+          {
+            "name": "EVOCUS Black Alkaline Drink",
+            "amount": 0
+          },
+          {
+            "name": "realme Buds Wireless 2",
+            "amount": 0
+          },
+          {
+            "name": "Wild Stone Edge Perfume",
+            "amount": 0
+          },
+          {
+            "name": "D'Liya Polycotton Solid Shirt Fabric",
+            "amount": 0
+          },
+          {
+            "name": "POCO M2 Pro",
+            "amount": 0
+          },
+          {
+            "name": "boAt Bassheads 103 Wired Earphones",
+            "amount": 0
+          },
+          {
+            "name": "Mitvaa Back Cover for Mi Redmi Note 10 Pro Max",
+            "amount": 0
+          },
+          {
+            "name": "Print Zap Back Cover for Mi Redmi Note 10 Pro Max",
+            "amount": 0
+          }
+        ],
+        "stock_text": "Out of Stock / Currently not available in your pincode",
+        "timer_text": "Top Discount of the Sale",
+        "price_displayed": 417
+      },
+      {
+        "url": "https://www.flipkart.com/viewcart",
+        "name": "cart",
+        "line_items": [],
+        "stock_text": "",
+        "timer_text": "",
+        "price_displayed": 0
+      },
+      {
+        "url": "https://www.flipkart.com/search?q=earphones+under+150&sid=0pm,fcn,821",
+        "name": "listing",
+        "line_items": [
+          {
+            "name": "ZEBRONICS ZEB-BRO, With In-Line MiC, 3.5mm Jack, 10mm drivers, Compatible for Phone/Tablet Wired",
+            "amount": 139
+          }
+        ],
+        "stock_text": "",
+        "timer_text": "Top Discount of the Sale",
+        "price_displayed": 139
+      },
+      {
+        "url": "https://www.flipkart.com/viewcart",
+        "name": "cart",
+        "line_items": [
+          {
+            "name": "ZEBRONICS ZEB-BRO, With In-Line MiC, 3.5mm Jack, 10mm drivers, Compatible for Phone/Tablet Wired",
+            "amount": 139
+          }
+        ],
+        "stock_text": "",
+        "timer_text": "",
+        "price_displayed": 139
+      },
+      {
+        "url": "https://www.flipkart.com/proceed/buyer/buyer?otracker=checkout_checkout",
+        "name": "payment",
+        "line_items": [
+          {
+            "name": "Product Total",
+            "amount": 139
+          },
+          {
+            "name": "Discount",
+            "amount": 0
+          },
+          {
+            "name": "Delivery Charges",
+            "amount": 40
+          },
+          {
+            "name": "Fees",
+            "amount": -3
+          },
+          {
+            "name": "Total Amount",
+            "amount": 176
+          }
+        ],
+        "stock_text": "",
+        "timer_text": "",
+        "price_displayed": 176
+      }
+    ],
+    "listed_price": 139,
+    "product_name": "ZEBRONICS ZEB-BRO, With In-Line MiC, 3.5mm Jack, 10mm drivers, Compatible for Phone/Tablet Wired",
+    "payment_line_items": [
+      {
+        "name": "Product Total",
+        "amount": 139
+      },
+      {
+        "name": "Discount",
+        "amount": 0
+      },
+      {
+        "name": "Delivery Charges",
+        "amount": 40
+      },
+      {
+        "name": "Fees",
+        "amount": -3
+      },
+      {
+        "name": "Total Amount",
+        "amount": 176
+      }
+    ],
+    "payment_page_total": 176,
+    "cart_items_before_adding": [
+      "Tibra Collection Men Solid Straight Kurta (Rs. 253)",
+      "filbay Back Cover for Vivo V70 Elite 5G (Rs. 154)",
+      "SHAPEON Beard Growth and Mooch Hair Growth Oil (Out of Stock)",
+      "MUSCLEBLAZE Shaker Bottle (Out of Stock)",
+      "RADECOR Microfiber 0 GSM Bath Towel (Out of Stock)",
+      "GOBOULT StormX Wired Earphones (Out of Stock)",
+      "boAt boAt Bassheads 103 Wired Earphones (Out of Stock)",
+      "HIGHLANDER Slim Men Blue Jeans (Out of Stock)",
+      "BOZTI Back Cover for Mi Redmi Note 10 Pro (Out of Stock)",
+      "Lee-Star LE-821 400 W Mixer Grinder (Out of Stock)",
+      "EVOCUS Black Alkaline Drink (Out of Stock)",
+      "realme Buds Wireless 2 (Out of Stock)",
+      "Wild Stone Edge Perfume (Out of Stock)",
+      "D'Liya Polycotton Solid Shirt Fabric (Out of Stock)",
+      "POCO M2 Pro (Out of Stock)",
+      "boAt Bassheads 103 Wired Earphones (Out of Stock)",
+      "Mitvaa Back Cover for Mi Redmi Note 10 Pro Max (Out of Stock)",
+      "Print Zap Back Cover for Mi Redmi Note 10 Pro Max (Out of Stock)"
+    ]
+  },
+  "output_schema": {
+    "type": "object",
+    "required": [
+      "steps",
+      "listed_price",
+      "payment_page_total"
+    ],
+    "properties": {
+      "steps": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "name",
+            "url"
+          ],
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "line_items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "amount"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "stock_text": {
+              "type": "string"
+            },
+            "timer_text": {
+              "type": "string"
+            },
+            "price_displayed": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "listed_price": {
+        "type": "number"
+      },
+      "product_name": {
+        "type": "string"
+      },
+      "payment_line_items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "name",
+            "amount"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "payment_page_total": {
+        "type": "number"
+      },
+      "cart_items_before_adding": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "profile_attached": true,
+  "profile_id": "prof_c7a9986291d243d1",
+  "error": null,
+  "streaming_url": "https://ip-54-241-42-93.tetra-data.production.tinyfish.io/tf-86541385-d4d9-4d5d-a54b-2a01512183bc/stream/0?<redacted>",
+  "browser_config": {
+    "proxy_enabled": true,
+    "proxy_country_code": "IN"
+  },
+  "video_url": "https://eva-traces-production.s3.us-west-1.amazonaws.com/eva-traces/09c417f2-6e42-4160-8b16-6175d7f5a2df/video/recording.webm?<redacted>",
+  "steps": [
+    {
+      "id": "ea9fc9e6-9d10-4d11-b9ac-469c578e4089",
+      "timestamp": "2026-10-24T13:54:56Z",
+      "status": "RUNNING",
+      "action": "Navigate to Flipkart homepage",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/ea9fc9e6-9d10-4d11-b9ac-469c578e4089/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/ea9fc9e6-9d10-4d11-b9ac-469c578e4089/html",
+      "duration": "13.6s"
+    },
+    {
+      "id": "b0eb2b12-f6d3-4f6c-8d0b-375379ebed49",
+      "timestamp": "2026-10-24T13:55:13Z",
+      "status": "RUNNING",
+      "action": "Open the cart on Flipkart",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/b0eb2b12-f6d3-4f6c-8d0b-375379ebed49/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/b0eb2b12-f6d3-4f6c-8d0b-375379ebed49/html",
+      "duration": "14.4s"
+    },
+    {
+      "id": "b2559d26-535f-4c8d-a180-9c90192537c1",
+      "timestamp": "2026-10-24T13:55:35Z",
+      "status": "RUNNING",
+      "action": "List all cart items with prices",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/b2559d26-535f-4c8d-a180-9c90192537c1/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/b2559d26-535f-4c8d-a180-9c90192537c1/html",
+      "duration": "3.9s"
+    },
+    {
+      "id": "2a2a27b9-09ac-4713-9bf7-dca97f06eebb",
+      "timestamp": "2026-10-24T13:55:43Z",
+      "status": "RUNNING",
+      "action": "Remove first cart item",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/2a2a27b9-09ac-4713-9bf7-dca97f06eebb/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/2a2a27b9-09ac-4713-9bf7-dca97f06eebb/html",
+      "duration": "3.0s"
+    },
+    {
+      "id": "a3c90aa2-100d-4b96-be8a-c9bb8ca23ce3",
+      "timestamp": "2026-10-24T13:55:59Z",
+      "status": "RUNNING",
+      "action": "Remove SHAPEON item from cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/a3c90aa2-100d-4b96-be8a-c9bb8ca23ce3/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/a3c90aa2-100d-4b96-be8a-c9bb8ca23ce3/html",
+      "duration": "2.0s"
+    },
+    {
+      "id": "e3f3207e-8b64-47bd-b4ae-15ae657b8b76",
+      "timestamp": "2026-10-24T13:56:13Z",
+      "status": "RUNNING",
+      "action": "Remove MUSCLEBLAZE item from cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/e3f3207e-8b64-47bd-b4ae-15ae657b8b76/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/e3f3207e-8b64-47bd-b4ae-15ae657b8b76/html",
+      "duration": "3.0s"
+    },
+    {
+      "id": "ebf2ec6c-3997-423d-95d8-e0e135c47988",
+      "timestamp": "2026-10-24T13:56:25Z",
+      "status": "RUNNING",
+      "action": "Remove RADECOR item from cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/ebf2ec6c-3997-423d-95d8-e0e135c47988/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/ebf2ec6c-3997-423d-95d8-e0e135c47988/html",
+      "duration": "3.3s"
+    },
+    {
+      "id": "e6dcfa67-46d4-4aa1-a426-6f55bc4e6954",
+      "timestamp": "2026-10-24T13:56:55Z",
+      "status": "RUNNING",
+      "action": "Remove BOZTI item from cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/e6dcfa67-46d4-4aa1-a426-6f55bc4e6954/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/e6dcfa67-46d4-4aa1-a426-6f55bc4e6954/html",
+      "duration": "2.3s"
+    },
+    {
+      "id": "975995cc-eb24-4d56-8509-548b602fa932",
+      "timestamp": "2026-10-24T13:57:17Z",
+      "status": "RUNNING",
+      "action": "Check current cart items after removing 4",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/975995cc-eb24-4d56-8509-548b602fa932/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/975995cc-eb24-4d56-8509-548b602fa932/html",
+      "duration": "3.2s"
+    },
+    {
+      "id": "6c499eea-246b-4275-84ba-7844e30a5bb6",
+      "timestamp": "2026-10-24T13:57:24Z",
+      "status": "RUNNING",
+      "action": "Remove BOZTI item from cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/6c499eea-246b-4275-84ba-7844e30a5bb6/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/6c499eea-246b-4275-84ba-7844e30a5bb6/html",
+      "duration": "6.5s"
+    },
+    {
+      "id": "48c17671-b88d-4fa2-9e56-c2d1b3ab6a39",
+      "timestamp": "2026-10-24T13:57:35Z",
+      "status": "RUNNING",
+      "action": "Return to cart to remove remaining items",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/48c17671-b88d-4fa2-9e56-c2d1b3ab6a39/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/48c17671-b88d-4fa2-9e56-c2d1b3ab6a39/html",
+      "duration": "3.9s"
+    },
+    {
+      "id": "23c495f4-198b-4c43-91fe-ebba66bb3112",
+      "timestamp": "2026-10-24T13:57:45Z",
+      "status": "RUNNING",
+      "action": "Return to cart to remove remaining items",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/23c495f4-198b-4c43-91fe-ebba66bb3112/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/23c495f4-198b-4c43-91fe-ebba66bb3112/html",
+      "duration": "19.7s"
+    },
+    {
+      "id": "1f6982a6-4115-498d-9e54-1ff61fefeacc",
+      "timestamp": "2026-10-24T13:58:10Z",
+      "status": "RUNNING",
+      "action": "Remove filbay Back Cover from cart",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/1f6982a6-4115-498d-9e54-1ff61fefeacc/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/1f6982a6-4115-498d-9e54-1ff61fefeacc/html",
+      "duration": "2.8s"
+    },
+    {
+      "id": "1c3529ab-3b42-47bd-bede-4f3b8b51a949",
+      "timestamp": "2026-10-24T13:58:20Z",
+      "status": "RUNNING",
+      "action": "Go to search to find product under 150 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/1c3529ab-3b42-47bd-bede-4f3b8b51a949/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/1c3529ab-3b42-47bd-bede-4f3b8b51a949/html",
+      "duration": "1.2s"
+    },
+    {
+      "id": "b5be967f-04e5-467b-9cd0-66fe94eb7b8b",
+      "timestamp": "2026-10-24T13:58:25Z",
+      "status": "RUNNING",
+      "action": "Wait for cart to finish loading after removals",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/b5be967f-04e5-467b-9cd0-66fe94eb7b8b/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/b5be967f-04e5-467b-9cd0-66fe94eb7b8b/html",
+      "duration": "3.4s"
+    },
+    {
+      "id": "e0477dd3-a26f-4abc-aff9-d8ec397398fa",
+      "timestamp": "2026-10-24T13:58:32Z",
+      "status": "RUNNING",
+      "action": "Check cart state after removals",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/e0477dd3-a26f-4abc-aff9-d8ec397398fa/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/e0477dd3-a26f-4abc-aff9-d8ec397398fa/html",
+      "duration": "2.6s"
+    },
+    {
+      "id": "dc122250-2d3c-47b1-aa77-429db4ebcd09",
+      "timestamp": "2026-10-24T13:58:36Z",
+      "status": "RUNNING",
+      "action": "Go to Flipkart homepage to search for products under 150 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/dc122250-2d3c-47b1-aa77-429db4ebcd09/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/dc122250-2d3c-47b1-aa77-429db4ebcd09/html",
+      "duration": "20.9s"
+    },
+    {
+      "id": "4210cb4e-6870-4f2f-bcf6-b7c206413747",
+      "timestamp": "2026-10-24T13:59:02Z",
+      "status": "RUNNING",
+      "action": "Search for cheap items under 150 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/4210cb4e-6870-4f2f-bcf6-b7c206413747/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/4210cb4e-6870-4f2f-bcf6-b7c206413747/html",
+      "duration": "2.1s"
+    },
+    {
+      "id": "5e1b8e40-d2bc-496d-ab5e-0bc4758d009c",
+      "timestamp": "2026-10-24T13:59:07Z",
+      "status": "RUNNING",
+      "action": "Execute search for earphones under 150",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/5e1b8e40-d2bc-496d-ab5e-0bc4758d009c/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/5e1b8e40-d2bc-496d-ab5e-0bc4758d009c/html",
+      "duration": "13.6s"
+    },
+    {
+      "id": "0039cf2d-7dec-47e6-8ad1-2e3900cb29b0",
+      "timestamp": "2026-10-24T13:59:25Z",
+      "status": "RUNNING",
+      "action": "Search for earphones under 150 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/0039cf2d-7dec-47e6-8ad1-2e3900cb29b0/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/0039cf2d-7dec-47e6-8ad1-2e3900cb29b0/html",
+      "duration": "10.5s"
+    },
+    {
+      "id": "bedbf130-0723-4e79-aea8-a37e049b0d0c",
+      "timestamp": "2026-10-24T13:59:45Z",
+      "status": "RUNNING",
+      "action": "Visit ZEBRONICS ZEB-BRO earphone product page priced at 139 rupees",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/bedbf130-0723-4e79-aea8-a37e049b0d0c/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/bedbf130-0723-4e79-aea8-a37e049b0d0c/html",
+      "duration": "10.6s"
+    },
+    {
+      "id": "a1ebefc9-3312-42e8-afe7-80b4d8ede126",
+      "timestamp": "2026-10-24T14:01:04Z",
+      "status": "RUNNING",
+      "action": "Finish task with findings on cart, product selection, and payment page data",
+      "screenshot": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/a1ebefc9-3312-42e8-afe7-80b4d8ede126/screenshot",
+      "html": "https://agent.tinyfish.ai/runs/09c417f2-6e42-4160-8b16-6175d7f5a2df/steps/a1ebefc9-3312-42e8-afe7-80b4d8ede126/html",
+      "duration": "8.3s"
+    },
+    {
+      "id": "134609f3-5c32-4b68-9c3b-18ee44b15472",
+      "timestamp": "2026-10-24T14:01:12Z",
+      "status": "COMPLETED",
+      "action": "Task completed",
+      "screenshot": null,
+      "html": null,
+      "duration": null
+    }
+  ]
+}
