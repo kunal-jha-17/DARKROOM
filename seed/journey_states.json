@@ -1,0 +1,32 @@
+[
+  {
+    "observation_id": "obs_7f3a",
+    "probe_spec_id": "spec_kurta_v1",
+    "platform": "Platform A",
+    "condition": { "session": "fresh", "run_index": 0, "captured_at": "2026-10-24T09:30:00Z" },
+    "steps": [
+      { "index": 0, "name": "listing", "url": "https://example.com/p/12345",
+        "price_displayed": 499.0, "line_items": [],
+        "stock_claims": [{ "text": "Only 2 left", "value": 2 }] },
+      { "index": 1, "name": "cart", "url": "https://example.com/cart",
+        "price_displayed": 499.0,
+        "line_items": [{ "name": "Kurta", "amount": 499.0, "added_by_us": true }] },
+      { "index": 2, "name": "checkout", "url": "https://example.com/checkout",
+        "price_displayed": 567.0,
+        "line_items": [
+          { "name": "Kurta", "amount": 499.0, "added_by_us": true },
+          { "name": "Handling fee", "amount": 68.0, "added_by_us": false }
+        ] },
+      { "index": 3, "name": "payment", "url": "https://example.com/pay",
+        "price_displayed": 626.0,
+        "line_items": [
+          { "name": "Kurta", "amount": 499.0, "added_by_us": true },
+          { "name": "Handling fee", "amount": 68.0, "added_by_us": false },
+          { "name": "Delivery", "amount": 59.0, "added_by_us": false }
+        ] }
+    ],
+    "totals": { "listed": 499.0, "cart": 499.0, "payment_page": 626.0 },
+    "outcome": "COMPLETED",
+    "artifacts": { "video_ref": null, "dom_refs": [], "hashes": {} }
+  }
+]

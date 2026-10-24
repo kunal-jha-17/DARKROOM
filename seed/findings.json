@@ -1,0 +1,39 @@
+[
+  {
+    "finding_id": "f_1184",
+    "platform": "Platform A",
+    "pattern": "drip_pricing",
+    "severity": "high",
+    "measure": { "delta_inr": 127.0, "delta_pct": 25.45, "from": 499.0, "to": 626.0 },
+    "clause": "CCPA Guidelines for Prevention and Regulation of Dark Patterns, 2023 — drip pricing",
+    "evidence": {
+      "observation_ids": ["obs_7f3a"],
+      "video_ref": null,
+      "reproduced_in": "5 of 6 observations"
+    },
+    "status": "confirmed",
+    "detected_at": "2026-10-24T09:31:02Z"
+  },
+  {
+    "finding_id": "f_1185",
+    "platform": "Platform B",
+    "pattern": "basket_sneaking",
+    "severity": "high",
+    "measure": { "items": ["Shipping protection"], "amount_inr": 29.0, "count": 1 },
+    "clause": "CCPA Dark Patterns Guidelines, 2023 — basket sneaking",
+    "evidence": { "observation_ids": ["obs_7f3b"], "reproduced_in": "3 of 6 observations" },
+    "status": "candidate",
+    "detected_at": "2026-10-24T09:44:10Z"
+  },
+  {
+    "finding_id": "f_1186",
+    "platform": "Platform C",
+    "pattern": "false_urgency",
+    "severity": "medium",
+    "measure": { "claim": "Only 2 left in stock", "unchanged_for_hours": 72.0 },
+    "clause": "CCPA Dark Patterns Guidelines, 2023 — false urgency",
+    "evidence": { "observation_ids": ["obs_7f3c", "obs_7f3d"], "reproduced_in": "4 of 4 observations" },
+    "status": "confirmed",
+    "detected_at": "2026-10-24T10:02:55Z"
+  }
+]
