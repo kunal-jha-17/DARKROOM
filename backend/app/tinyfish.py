@@ -237,10 +237,28 @@ _EMPTY_CLAIM_RE = re.compile(
     r"|.*\bother products?\b.*)\s*$", re.I)
 
 
+_UNAVAILABLE_RE = re.compile(
+    r"\b(out of stock|not available|unavailable|sold out|no longer|not deliverable"
+    r"|currently not)\b", re.I)
+
+
 def _claim(text: Optional[str]) -> Optional[str]:
     if not text or _EMPTY_CLAIM_RE.match(text):
         return None
     return text
+
+
+def _timer(text: Optional[str]) -> Optional[str]:
+    """A countdown only if it states a time ('Ends in 02:14:05', '2h 30m').
+    Badges like 'Top Discount of the Sale' are not timers."""
+    t = _claim(text)
+    return t if t and _seconds(t) is not None else None
+
+
+def _stock(text: Optional[str]) -> Optional[str]:
+    """A scarcity claim ('Only 2 left'), not an unavailability notice."""
+    t = _claim(text)
+    return t if t and not _UNAVAILABLE_RE.search(t) else None
 
 
 def _is_summary(name: str) -> bool:
@@ -340,12 +358,12 @@ def to_journey_state(run: dict, platform: str, spec_id: str,
                 if li.get("name") and li.get("amount") is not None
                 and float(li["amount"]) > 0 and not _is_summary(li["name"])
             ],
-            "timers": ([{"label": _claim(s.get("timer_text")),
-                         "seconds_left": _seconds(_claim(s.get("timer_text")))}]
-                       if _claim(s.get("timer_text")) else []),
-            "stock_claims": ([{"text": _claim(s.get("stock_text")),
-                               "value": _count(_claim(s.get("stock_text")))}]
-                             if _claim(s.get("stock_text")) else []),
+            "timers": ([{"label": _timer(s.get("timer_text")),
+                         "seconds_left": _seconds(_timer(s.get("timer_text")))}]
+                       if _timer(s.get("timer_text")) else []),
+            "stock_claims": ([{"text": _stock(s.get("stock_text")),
+                               "value": _count(_stock(s.get("stock_text")))}]
+                             if _stock(s.get("stock_text")) else []),
         })
 
     listed = _price(result.get("listed_price"))
@@ -388,6 +406,18 @@ def to_journey_state(run: dict, platform: str, spec_id: str,
             if _is_ours(li["name"], li["amount"], product, listed):
                 li["added_by_us"] = True
                 break
+
+    # The payment breakdown often lists only fees. Show our product there too,
+    # so the journey reads "earphones ₹139 + delivery ₹40", not just the fee.
+    pay_step = next((st for st in reversed(steps) if st["name"] == "payment"
+                     or "payment" in st["name"]), None)
+    if pay_step is not None and not any(li["added_by_us"] for li in pay_step["line_items"]):
+        mine = next((li for st in steps for li in st["line_items"] if li["added_by_us"]), None)
+        if mine is None and listed is not None and product:
+            mine = {"name": product, "amount": listed, "added_by_us": True}
+        if mine is not None:
+            pay_step["line_items"].insert(0, {"name": mine["name"], "amount": mine["amount"],
+                                              "added_by_us": True})
 
     # Items the agent found in the cart before adding ours (account leftovers).
     pre_existing = [n for n in (result.get("cart_items_before_adding") or [])

@@ -85,9 +85,25 @@ def _step_name(name: str) -> str:
 
 def _public_state(state: dict) -> dict:
     st = json.loads(json.dumps(state))
-    st.setdefault("artifacts", {})["video_ref"] = _video(st["artifacts"].get("video_ref"))
+    arts = st.setdefault("artifacts", {})
+    arts["video_ref"] = _video(arts.get("video_ref"))
+    arts.pop("dom_refs", None)  # TinyFish-internal links, need its API key
+    steps = []
     for step in st.get("steps", []):
         step["name"] = _step_name(step.get("name"))
+        # Items already in the account's cart are not part of the audited
+        # journey and may be personal; keep them out of the public view.
+        items = step.get("line_items", [])
+        kept = [li for li in items if not li.get("pre_existing")]
+        if items and not kept:
+            continue  # the account's old cart, before the agent cleared it
+        step["line_items"] = kept
+        steps.append(step)
+    # Drop cart-clearing steps that are now empty and carry no price.
+    st["steps"] = [s for s in steps if s["line_items"] or s.get("price_displayed")
+                   or s["name"] == "payment"]
+    for i, s in enumerate(st["steps"]):
+        s["index"] = i
     return st
 
 

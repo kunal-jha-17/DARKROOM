@@ -5,6 +5,7 @@ observation's old findings. Costs no credits. Use after fixing a rule:
 """
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -30,13 +31,20 @@ def main(run_path: str, observation_id: str, platform: str) -> None:
         js.observation_id = observation_id
         js.artifacts.video_ref = old.get("artifacts", {}).get("video_ref")
 
-        removed = 0
+        removed, old_ids = 0, {}
         for fr in db.query(FindingRow).all():
             if observation_id in fr.data.get("evidence", {}).get("observation_ids", []):
+                old_ids[fr.pattern] = (fr.finding_id, fr.data.get("detected_at"))
                 db.delete(fr)
                 removed += 1
+        db.flush()
 
         found = rules.evaluate(js) if js.outcome == "COMPLETED" else []
+        for f in found:  # same pattern on the same run keeps its id and time
+            if f.pattern in old_ids:
+                f.finding_id, when = old_ids[f.pattern]
+                if when:
+                    f.detected_at = datetime.fromisoformat(str(when).replace("Z", "+00:00"))
         obs.state = json.loads(js.model_dump_json())
         obs.outcome = js.outcome
         for f in found:
