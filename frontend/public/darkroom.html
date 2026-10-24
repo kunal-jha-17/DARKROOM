@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Darkroom</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light}
+:root{--tide:#EEF1EC;--page:#F9FAF7;--ink:#16241F;--slate:#566761;--rule:#D5DDD6;--teal:#0F6B62;--teal2:#0B554E;--brand:#F2382B;--mark:#F6D9B8;--amber:#D9962B;--flag:#B3261E}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--tide);color:var(--ink);font:400 17px/1.6 'Source Serif 4',Georgia,serif;text-wrap:pretty}
+h1,h2,h3,button,input,label,.ui{font-family:'Bricolage Grotesque',system-ui,sans-serif}
+a{color:inherit}
+.num{font-variant-numeric:tabular-nums}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.top{position:sticky;top:0;z-index:5;background:rgba(238,241,236,.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 28px;flex-wrap:wrap}
+.brand{display:flex;padding:2px 0}.brand img{height:64px;width:auto;display:block}
+.top-r{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.conn{font:600 14px 'Bricolage Grotesque',sans-serif;background:none;border:1px solid var(--rule);border-radius:99px;padding:6px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--ink)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--flag)}
+.on .dot{background:#1E9E5A}
+.wrap{max-width:1240px;margin:0 auto;padding:36px 28px 80px}
+.home{display:grid;grid-template-columns:330px 1fr;gap:48px;align-items:start}
+.desk{position:sticky;top:84px;background:var(--page);border:1px solid var(--rule);border-radius:14px;padding:22px}
+.desk h2{margin:0 0 4px;font-size:22px;letter-spacing:-.01em}
+.desk p{margin:0 0 16px;color:var(--slate);font-size:15px}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+input{width:100%;font:400 16px 'Bricolage Grotesque',sans-serif;padding:10px 12px;border:1px solid #9FB1A9;border-radius:8px;background:#fff;color:var(--ink)}
+.btn{margin-top:16px;width:100%;font:600 16px 'Bricolage Grotesque',sans-serif;background:var(--teal);color:#fff;border:0;border-radius:8px;padding:12px;cursor:pointer}
+.btn:hover{background:var(--teal2)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.run{border-top:1px solid var(--rule);margin-top:16px;padding-top:14px;font:400 15px/1.45 'Bricolage Grotesque',sans-serif}
+.run b{display:block;font-size:16px}
+.bar{height:5px;background:var(--rule);border-radius:9px;overflow:hidden;margin:8px 0 4px}
+.bar i{display:block;height:100%;width:35%;background:var(--teal);border-radius:9px;animation:slide 1.4s ease-in-out infinite}
+@keyframes slide{0%{margin-left:-35%}100%{margin-left:100%}}
+.fail{color:var(--flag)}
+h1{font-size:clamp(34px,4.6vw,58px);line-height:1.04;letter-spacing:-.035em;font-weight:800;margin:0 0 14px;max-width:18ch}
+.sub{color:var(--slate);font-size:18px;margin:0 0 36px;max-width:60ch}
+.mark{background:linear-gradient(transparent 55%,var(--mark) 55% 92%,transparent 92%);padding:0 3px}
+.charts{display:grid;grid-template-columns:1.1fr .9fr;gap:36px 48px;margin-bottom:44px}
+.charts h3,.sec{font-size:17px;margin:0 0 12px;font-weight:600}
+.charts .wide{grid-column:1/-1}
+.brow{display:grid;grid-template-columns:128px 1fr 64px;align-items:center;gap:12px;margin:9px 0;font:400 15px 'Bricolage Grotesque',sans-serif}
+.track{height:14px;background:#DCE6E1;border-radius:3px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--teal)}
+.track i.m{background:var(--brand)}
+.brow span:last-child{text-align:right;font-weight:600}
+.none{color:var(--slate);font-style:italic;margin:0}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}
+.chip{font:600 14px 'Bricolage Grotesque',sans-serif;border:1px solid var(--rule);background:var(--page);border-radius:99px;padding:6px 14px;cursor:pointer;color:var(--ink)}
+.chip[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.list{border-top:2px solid var(--ink);margin-top:14px}
+.row{display:grid;grid-template-columns:1fr auto;gap:6px 24px;padding:22px 6px;border-bottom:1px solid var(--rule);text-decoration:none}
+.row:hover{background:var(--page)}
+.row .pl{font:600 15px 'Bricolage Grotesque',sans-serif;color:var(--slate)}
+.row .hd{grid-column:1;font:600 clamp(20px,2.2vw,26px)/1.2 'Bricolage Grotesque',sans-serif;letter-spacing:-.02em}
+.row .meta{grid-column:1/-1;display:flex;gap:6px 22px;flex-wrap:wrap;color:var(--slate);font-size:15px}
+.tag{font:600 13px 'Bricolage Grotesque',sans-serif;border-radius:99px;padding:3px 12px;white-space:nowrap}
+.tag.c{background:var(--teal);color:#fff}.tag.k{border:1.5px dashed #7B8D86;color:var(--slate)}
+.warn{color:var(--flag);font:600 14px 'Bricolage Grotesque',sans-serif}
+.msg{background:var(--page);border:1px dashed #8FA39B;border-radius:12px;padding:26px;margin:18px 0}
+.msg b{font:600 18px 'Bricolage Grotesque',sans-serif}
+.back{font:600 15px 'Bricolage Grotesque',sans-serif;text-decoration:none;color:var(--teal)}
+.dhead{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:18px 0 6px}
+.dhead h1{font-size:clamp(30px,4vw,48px);margin:0;max-width:none}
+.dgrid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:48px;margin-top:26px;align-items:start}
+.receipt{background:#FDFEFC;padding:26px 28px 34px;border:1px solid var(--rule);box-shadow:0 1px 0 var(--rule),0 18px 30px -22px rgba(20,35,31,.35);position:relative;
+ --t:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/14px 100%;-webkit-mask:var(--t);mask:var(--t)}
+.receipt h2{margin:0 0 4px;font-size:22px}
+.receipt .sm{margin:0 0 16px;color:var(--slate);font-size:15px}
+.lr{display:flex;align-items:baseline;gap:8px;padding:11px 0;font:400 17px 'Bricolage Grotesque',sans-serif}
+.lr .lead{flex:1;border-bottom:2px dotted #A9B8B1;transform:translateY(-4px);min-width:16px}
+.lr .p{font-weight:600;font-size:20px}
+.lr.tot{border-top:2px solid var(--ink);margin-top:6px;padding-top:14px}.lr.tot .p{font-size:30px;font-weight:800}
+.li{font:400 14px/1.4 'Bricolage Grotesque',sans-serif;color:var(--slate);margin:-6px 0 8px 14px}
+.big{font:800 clamp(56px,8vw,96px)/1 'Bricolage Grotesque',sans-serif;letter-spacing:-.045em;margin:0}
+.big small{display:block;font:400 17px/1.4 'Source Serif 4',serif;letter-spacing:0;color:var(--slate);margin-top:10px}
+.stairs{width:100%;height:auto;margin:6px 0 4px;display:block}
+.side h3{margin:30px 0 8px;font-size:17px}.side h3:first-child{margin-top:0}
+.side p{margin:0 0 8px}
+.dots{display:flex;gap:6px;margin:6px 0}.dots i{width:18px;height:18px;border-radius:50%;border:2px solid var(--teal)}.dots i.f{background:var(--teal)}
+.ids{font:14px ui-monospace,Menlo,Consolas,monospace;color:var(--slate);word-break:break-all}
+video{width:100%;border-radius:10px;background:#000}
+.legal{font-style:italic;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:12px 0}
+.fine{margin-top:44px;color:var(--slate);font-size:15px;max-width:76ch;border-top:1px solid var(--rule);padding-top:16px}
+.press{display:inline-block;font:800 15px 'Bricolage Grotesque',sans-serif;color:var(--teal);border:3px solid var(--teal);padding:6px 12px;border-radius:5px;margin:14px 0 0;transform:rotate(-3deg);animation:press .5s cubic-bezier(.2,1.6,.4,1) .25s both}
+@keyframes press{from{transform:rotate(-9deg) scale(1.7);opacity:0}to{transform:rotate(-3deg) scale(1);opacity:1}}
+.nav{display:flex;gap:4px;flex:1;margin-left:18px}.nav a{font:600 15px 'Bricolage Grotesque',sans-serif;text-decoration:none;padding:8px 14px;border-radius:99px;color:var(--slate)}.nav a:hover{color:var(--ink)}.nav a.act{background:var(--ink);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--ink);border-bottom:1px solid var(--rule);margin:0 0 40px}.kpis div{padding:16px 18px;font:400 15px 'Bricolage Grotesque',sans-serif;color:var(--slate);border-right:1px solid var(--rule)}.kpis div:last-child{border:0}.kpis b{display:block;font:800 44px/1.1 'Bricolage Grotesque',sans-serif;color:var(--ink);letter-spacing:-.03em}
+.dn{display:flex;align-items:center;gap:22px}.dn ul{list-style:none;margin:0;padding:0;font:400 15px 'Bricolage Grotesque',sans-serif}.dn li{display:flex;align-items:center;gap:8px;margin:6px 0}.dn i{width:12px;height:12px;border-radius:50%}
+.sec2{font-size:22px;margin:0 0 4px}
+.tbl{border-top:2px solid var(--ink)}.pr{display:grid;grid-template-columns:1.2fr 1.6fr 1.2fr 1.4fr 1fr;gap:18px;align-items:center;padding:20px 4px;border-bottom:1px solid var(--rule);font:400 16px 'Bricolage Grotesque',sans-serif}.pr small{color:var(--slate);font-size:13px}
+.prose{max-width:68ch}.prose h2{font-size:24px;margin:36px 0 8px}
+.foot{border-top:1px solid var(--rule);padding:22px 28px;color:var(--slate);font-size:14px;text-align:center}
+.ck{list-style:none;padding:0;margin:0 0 8px;font:400 16px 'Bricolage Grotesque',sans-serif}.ck li{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dotted #A9B8B1}.ck .y{color:var(--teal);font-weight:600}.ck .n{color:var(--slate);font-weight:600}
+@media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}.pr{grid-template-columns:1fr}.nav{order:3;width:100%;margin:0;overflow-x:auto}}
+@media(max-width:900px){.home,.dgrid,.charts{grid-template-columns:1fr}.desk{position:static}.top{padding:12px 16px}.wrap{padding:24px 16px 60px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+
+.burger{width:44px;height:44px;border:1px solid var(--rule);background:var(--page);border-radius:10px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;padding:0;flex:none}
+.burger span{display:block;width:20px;height:2.5px;background:var(--ink);border-radius:2px;transition:transform .25s,opacity .2s}
+.burger.open span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}.burger.open span:nth-child(2){opacity:0}.burger.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
+.scrim{position:fixed;inset:0;background:rgba(22,36,31,.38);opacity:0;pointer-events:none;transition:opacity .25s;z-index:8}.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:min(560px,100vw);background:var(--page);z-index:9;transform:translateX(-102%);transition:transform .3s;overflow-y:auto;padding:22px 24px 40px;outline:0}.drawer.open{transform:none;box-shadow:20px 0 40px -24px rgba(22,36,31,.4)}
+body.lock{overflow:hidden}
+.dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.dh h2{margin:0;font-size:26px}
+.x{font:400 28px/1 'Bricolage Grotesque',sans-serif;width:40px;height:40px;border:1px solid var(--rule);background:none;border-radius:10px;cursor:pointer;color:var(--ink)}
+.dk{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 26px}.dk div{border:1px solid var(--rule);border-radius:10px;padding:12px 14px;background:var(--tide);font:400 14px/1.3 'Bricolage Grotesque',sans-serif;color:var(--slate)}.dk b{display:block;font:800 30px/1.15 'Bricolage Grotesque',sans-serif;color:var(--ink);letter-spacing:-.02em}
+.drawer .charts{grid-template-columns:1fr;gap:28px;margin:0}
+.prov{font-size:14px;color:var(--slate);border-top:1px solid var(--rule);padding-top:12px;margin-top:26px}
+.banner{background:#FBEFD6;border-bottom:1px solid #E6CB92;color:#5B3F0A;padding:10px 28px;font:600 14px 'Bricolage Grotesque',sans-serif}
+.here{font:600 15px 'Bricolage Grotesque',sans-serif;color:var(--slate);flex:1;border-left:1px solid var(--rule);padding-left:14px;margin-left:4px}
+.drawer{width:min(340px,100vw)}
+.drawer .nav{flex-direction:column;gap:6px;margin:8px 0 0;order:0;width:auto;overflow:visible}
+.drawer .nav a{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:12px;font-size:18px;border:1px solid var(--rule)}
+.drawer .nav a.act::after{content:'You are here';font-size:12px;font-weight:600;opacity:.8}
+#dashbox{margin:0 0 40px}#dashbox .dk{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){#dashbox .dk{grid-template-columns:1fr 1fr}.here{flex:none;border:0;padding:0}}
+
+.pill{font:600 14px 'Bricolage Grotesque',sans-serif;text-decoration:none;color:var(--teal);border:1.5px solid var(--teal);border-radius:99px;padding:6px 14px;white-space:nowrap}
+.pill:hover{background:var(--teal);color:#fff}
+.live{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font:400 15px 'Bricolage Grotesque',sans-serif;color:var(--slate);margin:0 0 28px;padding:12px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.live .chip{margin-left:auto}.live .chip:disabled{opacity:.5;cursor:wait}
+.ldot{width:10px;height:10px;border-radius:50%;background:#1E9E5A;flex:none}.ldot.spin{background:var(--amber);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+.tags{display:flex;gap:6px;justify-content:flex-end;align-items:flex-start}
+.tag.h{background:var(--brand);color:#fff}
+.kpis3{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid var(--ink);border-bottom:1px solid var(--rule);margin:0 0 40px}
+.kpis3 div{padding:16px 18px;font:400 15px 'Bricolage Grotesque',sans-serif;color:var(--slate);border-right:1px solid var(--rule)}.kpis3 div:last-child{border:0}
+.kpis3 b{display:block;font:800 40px/1.1 'Bricolage Grotesque',sans-serif;color:var(--ink);letter-spacing:-.03em}
+.flow{border-top:2px solid var(--ink)}
+.fr{display:grid;grid-template-columns:1.1fr 28px 1.3fr 28px 1.3fr;gap:10px;align-items:center;padding:16px 4px;border-bottom:1px solid var(--rule);font:400 16px 'Bricolage Grotesque',sans-serif}
+.fr b{display:block}.fr small{display:block;color:var(--slate);font-size:13px}
+.arr{color:var(--slate);font-size:22px;text-align:center}
+.btn2{display:inline-block;font:600 14px 'Bricolage Grotesque',sans-serif;background:none;color:var(--teal);border:1.5px solid var(--teal);border-radius:8px;padding:8px 12px;cursor:pointer;text-decoration:none}
+.btn2:hover{background:var(--teal);color:#fff}
+details>summary{cursor:pointer;list-style:none;padding:10px 0;font:600 17px 'Bricolage Grotesque',sans-serif}details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:'+';display:inline-block;width:22px;font-weight:800}details[open]>summary::before{content:'\2212'}
+@media(max-width:900px){.kpis3{grid-template-columns:1fr}.kpis3 div{border-right:0;border-bottom:1px solid var(--rule)}.fr{grid-template-columns:1fr}.arr{display:none}.live .chip{margin-left:0}.pill{padding:6px 10px}}
+@media(prefers-reduced-motion:reduce){.ldot.spin{animation:none}}
+.top{top:0;padding-top:calc(12px + env(safe-area-inset-top,0px))}body{padding-bottom:env(safe-area-inset-bottom,0px)}
+.conn.demo .dot{background:var(--amber)}
+.banner{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap}.banner[hidden]{display:none}
+.bb{font:600 13px 'Bricolage Grotesque',sans-serif;border:1.5px solid #5B3F0A;background:none;color:#5B3F0A;border-radius:99px;padding:4px 12px;cursor:pointer}.bb:hover{background:#5B3F0A;color:#fff}
+.tag.d{background:#FBEFD6;color:#5B3F0A;border:1px solid #E6CB92}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:#fff;font:600 15px 'Bricolage Grotesque',sans-serif;padding:12px 20px;border-radius:99px;opacity:0;pointer-events:none;transition:.3s;z-index:20;max-width:92vw;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="dash"><span></span><span></span><span></span></button>
+  <a class="brand" href="#/" aria-label="Darkroom home"><img src="logo.png" alt="Darkroom: spot, prove, stop"></a>
+  <span class="here ui" id="here" aria-live="polite">Home</span>
+  <div class="top-r">
+    <a class="pill" id="pillnews" href="#/whats-on">What’s on</a>
+    <button class="conn" id="conn" title="Change backend address"><span class="dot"></span><span id="connT">Checking backend</span></button>
+  </div>
+</header>
+<div class="banner" id="banner" hidden></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="dash" inert tabindex="-1" role="dialog" aria-label="Menu"><div class="dh"><h2>Menu</h2><button class="x" id="dx" aria-label="Close menu">×</button></div><nav class="nav" id="nav" aria-label="Main"><a href="#/" data-p="home">Home</a><a href="#/whats-on" data-p="whatson">What’s on</a><a href="#/platforms" data-p="platforms">Platforms</a><a href="#/method" data-p="method">Method</a></nav></aside>
+<main class="wrap" id="app"></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<footer class="foot">Darkroom reports measurements, not verdicts. Every run stops before payment.</footer>
+
+<script>
+"use strict";
+/* ---------- config + API (the only place that talks to the backend) ---------- */
+const store=(k,v)=>{try{if(v!==undefined)localStorage.setItem(k,v);return localStorage.getItem(k)}catch(e){return null}};
+/* Same-origin by default: Next.js proxies /api/* to the backend on :8000, so there is no CORS to configure. */
+let BASE=(new URLSearchParams(location.search).get('api')||store('dr_api')||(location.protocol==='file:'?'http://localhost:8000':'')).replace(/\/$/,'');
+const where=()=>BASE||'the backend on port 8000';
+const media=u=>/^(https?:|data:|blob:)/.test(u)?u:(location.protocol==='file:'?'http://localhost:8000':BASE)+(u[0]==='/'?'':'/')+u;
+const api=async(p,o)=>{const r=await fetch(BASE+p,Object.assign({cache:'no-store'},o));if(!r.ok)throw new Error('API '+r.status+' on '+p);return r.json()};
+const getFindings=()=>api('/api/findings').then(d=>d.findings||[]);
+const getFinding=id=>api('/api/findings/'+encodeURIComponent(id));
+const getRun=id=>api('/api/runs/'+encodeURIComponent(id));
+const startProbe=(platform,entry_url)=>api('/api/probes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform,entry_url})});
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr=n=>'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:0});
+const when=d=>new Date(d).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
+const PL={drip_pricing:'Drip pricing',basket_sneaking:'Basket sneaking',false_urgency:'False urgency',cancel_friction:'Subscription trap',confirm_shaming:'Confirm shaming',trick_wording:'Trick wording'};
+const plabel=p=>PL[p]||String(p||'Other pattern').replace(/_/g,' ');
+const plural=(n,w)=>n+' '+w+(n===1?'':'s');
+function headline(f){
+  const m=f.measure||{};
+  switch(f.pattern){
+    case 'drip_pricing': if(m.delta_inr!=null) return inr(m.delta_inr)+' added after the price was shown';break;
+    case 'basket_sneaking':{const c=Array.isArray(m.items)?m.items.length:(m.count??m.items??1);return plural(c,'item')+' added without consent'+(m.amount_inr!=null?', '+inr(m.amount_inr):'')}
+    case 'false_urgency': if(m.claim) return '“'+m.claim+'” unchanged for '+(m.unchanged_for_hours??'?')+' hours';break;
+    case 'cancel_friction': if(m.cancel_steps!=null) return m.cancel_steps+' steps to cancel, '+m.subscribe_steps+' to subscribe';break;
+  }
+  return f.clause||plabel(f.pattern);
+}
+
+/* ---------- state ---------- */
+const S={page:'home',findings:[],online:false,loaded:false,err:'',filt:{p:'all',s:'all'},runs:[],form:(()=>{try{return Object.assign({platform:'',url:''},JSON.parse(store('dr_form')||'{}'))}catch(e){return{platform:'',url:''}}})(),updated:null,source:'none',basis:'confirmed',menu:false,snap:undefined,det:{},jbusy:false,news:{items:[],all:[],t:null,err:'',loading:false,nextAt:0,more:false}};
+
+const AUTO_DEMO=false;
+const demoOn=()=>AUTO_DEMO||store('dr_demo')==='1';
+/* Sample data for the labelled preview only. Used when the backend is unreachable and the user (or the preview build) asks for it. All platforms are fictional. */
+const DEMO=(()=>{const D=864e5,now=Date.now(),F=[],det={};
+  const mk=(id,platform,pattern,status,severity,measure,clause,repro,prices,ago,li)=>{
+    const f={finding_id:id,platform,pattern,status,severity,measure,clause,detected_at:new Date(now-ago*D).toISOString(),evidence:{reproduced_in:repro,observation_ids:['obs_'+id+'_a','obs_'+id+'_b'],video_ref:null}};
+    F.push(f);det[id]={finding:f,journey_states:prices?[{observation_id:'obs_'+id+'_a',steps:['listing','cart','checkout','payment'].map((n,i)=>({name:n,price_displayed:prices[i],line_items:(li&&li[i])||[]}))}]:[]}};
+  const A='Dark Patterns Guidelines, 2023, Annexure 1, item ';
+  mk('dm1','Demo Eats','drip_pricing','confirmed','high',{delta_inr:127,delta_pct:25.5},A+'8 (drip pricing)','3 of 3',[499,499,567,626],.2,[0,0,[{name:'Platform fee',amount:68,added_by_us:false}],[{name:'Handling fee',amount:59,added_by_us:false}]]);
+  mk('dm2','Demo Mart','basket_sneaking','confirmed','high',{items:['Gift wrap'],amount_inr:49},A+'2 (basket sneaking)','3 of 3',[1299,1299,1348,1348],.6,[0,[{name:'Gift wrap',amount:49,added_by_us:false}]]);
+  mk('dm3','Demo Tickets','drip_pricing','confirmed','medium',{delta_inr:156,delta_pct:13},A+'8 (drip pricing)','2 of 3',[1200,1200,1290,1356],1.1);
+  mk('dm4','Demo Cabs','false_urgency','candidate','medium',{claim:'Only 2 cabs left',unchanged_for_hours:6},A+'1 (false urgency)','2 of 3',null,1.8);
+  mk('dm5','Demo Stream','cancel_friction','confirmed','low',{cancel_steps:7,subscribe_steps:2},A+'5 (subscription trap)','3 of 3',null,2.5);
+  mk('dm6','Demo Eats','drip_pricing','candidate','medium',{delta_inr:89,delta_pct:14.9},A+'8 (drip pricing)','1 of 3',[599,599,643,688],3);
+  return{F,det}})();
+const NEWS_SNAP_AT='2026-10-24T12:00:00+05:30';
+const NEWS_SNAP=[
+ {title:'CCPA fines IndiGo, Zepto, BookMyShow, Physics Wallah and five other platforms over dark patterns',link:'https://www.business-standard.com/industry/news/ccpa-fines-indigo-zepto-bookmyshow-dark-patterns-quick-commerce-penalty-126080600580_1.html',src:'Business Standard',host:'business-standard.com',t:Date.parse('2026-08-06T12:20:00+05:30')},
+ {title:'CCPA Penalises Zepto, IndiGo, Physics Wallah And 6 Other Platforms Over Dark Patterns',link:'https://www.freepressjournal.in/business/ccpa-penalises-zepto-indigo-physics-wallah-and-6-other-platforms-over-dark-patterns',src:'Free Press Journal',host:'freepressjournal.in',t:Date.parse('2026-08-06T10:00:00+05:30')},
+ {title:'Inside India’s Dark Pattern Crackdown: Why Zepto, BookMyShow And Others Are Under CCPA Scanner',link:'https://www.outlookbusiness.com/news/inside-indias-dark-pattern-crackdown-why-zepto-bookmyshow-and-others-are-under-ccpa-scanner',src:'Outlook Business',host:'outlookbusiness.com',t:Date.parse('2026-08-06T09:00:00+05:30')},
+ {title:'CCPA Acts Against Dark Patterns on Digital Platforms',link:'https://www.deceptive.design/articles/ccpa-acts-against-dark-patterns-on-digital-platforms',src:'Press Information Bureau',host:'pib.gov.in',t:Date.parse('2026-06-03T12:00:00+05:30')}];
+let H=location.hash;
+function nav(h){H=h;try{history.pushState(null,'',h)}catch(e){}go()}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),3800)}
+function chAddr(){const v=prompt('Backend address (leave empty to use the built-in proxy to port 8000)',BASE);if(v!==null){BASE=v.trim().replace(/\/$/,'');store('dr_api',BASE);recheck()}}
+async function recheck(){toast('Checking the backend…');await refresh();await health();if(S.source!=='live')toast('Not reachable at '+where()+'. Start the backend on port 8000, it reconnects on its own.')}
+
+/* ---------- connection + data refresh ---------- */
+async function loadSnapshot(){
+  if(S.snap!==undefined)return S.snap;
+  try{const r=await fetch('data/snapshot.json',{cache:'no-store'});if(!r.ok)throw 0;const d=await r.json();if(!Array.isArray(d.findings))throw 0;S.snap=d}catch(e){S.snap=false}
+  return S.snap}
+function paintConn(){
+  const on=S.online&&S.source==='live',dm=S.source==='demo';
+  $('#conn').className='conn'+(on?' on':dm?' demo':'');
+  $('#connT').textContent=on?'Backend live'+(BASE?' at '+BASE.replace(/^https?:\/\//,''):' on port 8000'):dm?'Preview · sample data':S.source==='snapshot'?'Offline, saved snapshot':'Backend offline';
+  const b=$('#banner');b.hidden=!(S.source==='snapshot'||dm);
+  if(!b.hidden){b.innerHTML='<span>'+(dm?'<b>Preview with sample data.</b> The backend is not connected, so every finding is a labelled sample, not a real measurement. The probe replays a recorded sample run.':'Backend not connected. Showing the saved snapshot exported from the real backend on '+esc(when(S.updated))+'. Probing is off until the backend is live.')+'</span><button class="bb" id="bretry">Check connection</button><button class="bb" id="baddr">Change address</button>';
+    $('#bretry').onclick=recheck;$('#baddr').onclick=chAddr}
+}
+async function health(){
+  try{await api('/api/health');S.online=true}catch(e){S.online=false}
+  paintConn();gate();
+}
+async function refresh(){
+  try{const f=await getFindings();if(S.loaded&&S.source!=='live')toast('Backend connected. Live findings loaded.');S.findings=f;S.err='';S.online=true;S.source='live';S.updated=new Date()}
+  catch(e){S.err=e.message;S.online=false;
+    const sn=await loadSnapshot();
+    if(sn){S.findings=sn.findings;S.source='snapshot';S.updated=new Date(sn.exported_at||Date.now())}
+    else if(S.source!=='live'){if(demoOn()){S.findings=DEMO.F;S.source='demo';S.updated=new Date()}else{S.findings=[];S.source='none'}}}
+  S.loaded=true;
+  if(route().id===null)repaintOpenPage();
+  paintConn();
+}
+$('#conn').onclick=recheck;
+
+/* ---------- charts (pure SVG/CSS, drawn from live findings) ---------- */
+function bars(rows,fmt,cls){
+  const max=Math.max(...rows.map(r=>r.v),1);
+  return rows.map(r=>`<div class="brow"><span>${esc(r.k)}</span><div class="track"><i class="${cls||''}" style="width:${Math.max(4,r.v/max*100)}%"></i></div><span class="num">${fmt?fmt(r):r.v}</span></div>`).join('');
+}
+function byDay(list){
+  const map=new Map();
+  [...list].sort((a,b)=>new Date(a.detected_at)-new Date(b.detected_at)).forEach(f=>{
+    const k=new Date(f.detected_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    map.set(k,(map.get(k)||0)+1)});
+  return [...map.entries()].slice(-10);
+}
+function timeline(list){
+  const d=byDay(list);if(!d.length)return'';
+  const W=420,H=130,bw=Math.min(34,(W-20)/d.length-8),max=Math.max(...d.map(x=>x[1]));
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Findings per day">`+d.map((x,i)=>{
+    const h=x[1]/max*72,x0=10+i*((W-20)/d.length)+4;
+    return `<rect x="${x0}" y="${96-h}" width="${bw}" height="${h}" rx="2" fill="#0F6B62"/><text x="${x0+bw/2}" y="${90-h}" text-anchor="middle" font-size="13" font-weight="600" fill="#16241F" font-family="Bricolage Grotesque">${x[1]}</text><text x="${x0+bw/2}" y="116" text-anchor="middle" font-size="11" fill="#566761" font-family="Bricolage Grotesque">${esc(x[0])}</text>`}).join('')+'</svg>';
+}
+
+const grade=f=>{const e=f.evidence||{},r=/(\d+)\s*of\s*(\d+)/.exec(e.reproduced_in||'');const c={number:!!(f.measure&&Object.keys(f.measure).length),recording:!!e.video_ref,clause:!!f.clause,repro:!!r&&+r[1]/+r[2]>=2/3};return{c,score:Object.values(c).filter(Boolean).length,pub:c.number&&c.recording&&c.clause}};
+const SEV={low:1,medium:2,high:3};
+function donut(L){const k=[['high','#B3261E'],['medium','#D9962B'],['low','#0F6B62']],n=L.length||1;let o=0;
+  const arcs=k.map(([s,c])=>{const v=L.filter(f=>f.severity===s).length,len=v/n*100,a=`<circle r="15.9" cx="21" cy="21" fill="none" stroke="${c}" stroke-width="7" stroke-dasharray="${len} ${100-len}" stroke-dashoffset="${25-o}"/>`;o+=len;return a}).join('');
+  return `<div class="dn"><svg viewBox="0 0 42 42" width="150" role="img" aria-label="Findings by severity">${arcs}<text x="21" y="23.5" text-anchor="middle" font-size="9" font-weight="800" font-family="Bricolage Grotesque">${L.length}</text></svg><ul>${k.map(([s,c])=>`<li><i style="background:${c}"></i>${s[0].toUpperCase()+s.slice(1)} severity <b class="num">${L.filter(f=>f.severity===s).length}</b></li>`).join('')}</ul></div>`}
+function platformsPage(L){
+  if(!L.length)return `<h1>Platforms</h1><div class="msg"><b>No platforms audited yet.</b><p>Each platform appears here after its first finding.</p></div>`;
+  const m={};L.forEach(f=>{const p=m[f.platform]||(m[f.platform]={n:0,c:0,p:0,add:0,sc:0,sev:0,lid:null,lt:0}),g=grade(f);p.n++;{const tt=+new Date(f.detected_at);if(tt>=p.lt){p.lt=tt;p.lid=f.finding_id}}p.c+=f.status==='confirmed'?1:0;p.p+=g.pub?1:0;p.sc+=g.score/4;p.sev+=(SEV[f.severity]||1)*(f.status==='confirmed'?1:.5);if(f.pattern==='drip_pricing')p.add+=Number((f.measure||{}).delta_inr)||0});
+  const rows=Object.entries(m).map(([k,v])=>({k,...v,idx:Math.round(100*v.sev/(3*v.n))})).sort((a,b)=>b.idx-a.idx);
+  return `<h1>Platforms</h1><p class="sub">Every platform the agents have shopped, ordered by review score. The score only sorts our reading order. It is not a verdict.</p><div class="tbl">`+rows.map(r=>`<div class="pr"><b>${esc(r.k)}</b><div><div class="track"><i style="width:${Math.max(4,r.idx)}%"></i></div><small>Review score ${r.idx} of 100</small></div><span class="num">${plural(r.n,'finding')}<br><small>${r.c} confirmed, ${r.p} fully evidenced</small><br><a class="back" href="#/f/${encodeURIComponent(r.lid)}">Open latest finding</a></span><span class="num">${r.add?inr(r.add)+'<br><small>added after the price was shown</small>':'<small>No price increase recorded</small>'}</span><span class="num">${Math.round(r.sc/r.n*100)}%<br><small>evidence strength</small></span></div>`).join('')+'</div>'}
+const METHOD=`<div class="prose"><h1>How Darkroom works</h1><p class="sub">Agents shop real checkouts so a price change becomes a measurement, not an opinion.</p>
+<h2>Learn the path once, replay it exactly</h2><p>An agent maps a checkout one time and saves the path. The same path is then replayed again and again, changing only one thing at a time. That is what separates a platform’s behaviour from the agent’s own randomness. A timer isn’t a problem. A timer that resets is, and you can only see that by looking twice.</p>
+<h2>Rules we keep</h2><p><b>We never pay.</b> Every run stops on the payment page, before anything is paid.</p><p><b>We publish measurements, not verdicts.</b> We say what the screen showed. Whether it is illegal is the regulator’s call.</p><p><b>Candidate or confirmed.</b> Every finding carries one of these two statuses, set by the backend. A candidate is a lead that is still being checked.</p>
+<h2>How the numbers are worked out</h2><p><b>Price jump.</b> Each step’s price minus the previous step’s price. The headline is the payment-page total minus the listed price, and the percentage is that difference divided by the listed price.</p>
+<p><b>Evidence checklist.</b> For each finding we show whether a measured number, a recording and a legal clause are attached, and whether it was reproduced in at least two thirds of runs. Evidence strength is the share of those four checks passed.</p>
+<p><b>Review score.</b> Each finding weighs 1, 2 or 3 by severity, halved while it is a candidate. A platform’s score is the total divided by three times its finding count, times 100. It orders our review queue and says nothing about guilt.</p>
+<h2>Right of reply</h2><p>Platforms are offered a right of reply before publication.</p></div>`;
+/* ---------- home ---------- */
+function shell(){
+  const desk=`<aside class="desk" aria-label="Probe desk"><h2>Probe desk</h2><p>Send an agent to shop a real checkout. It records every price and stops one click before payment.</p>
+    <label for="pf">Platform name</label><input id="pf" autocomplete="off" placeholder="Shop name">
+    <label for="uf">Entry URL</label><input id="uf" type="url" autocomplete="off" placeholder="Paste the entry URL">
+    <button class="btn" id="go">Run probe</button><div id="runs" aria-live="polite"></div></aside>`;
+  $('#app').innerHTML=S.page==='home'?`<div class="home">${desk}<section id="main"></section></div>`:`<section id="main"></section>`;
+  if(S.page==='home'){$('#pf').value=S.form.platform;$('#uf').value=S.form.url;
+    $('#pf').oninput=e=>{S.form.platform=e.target.value;saveForm()};$('#uf').oninput=e=>{S.form.url=e.target.value;saveForm();gate()};$('#go').onclick=run}
+  gate();paintRuns();
+}
+const saveForm=()=>store('dr_form',JSON.stringify(S.form));
+const busy=()=>S.runs.some(r=>r.live);
+function gate(){const b=$('#go'),dm=S.source==='demo';if(b)b.disabled=dm?false:(!S.form.url.trim()||!S.online||S.source!=='live');
+  const pf=$('#pf'),uf=$('#uf');if(pf){pf.placeholder=dm?'Sample: Demo Eats':'Shop name';uf.placeholder=dm?'Sample: https://demo.example/checkout':'Paste the entry URL'}}
+function paintHome(){
+  if(!$('#main'))return;
+  const L=S.findings,C=L.filter(f=>f.status==='confirmed'),drips=C.filter(f=>f.pattern==='drip_pricing'&&f.measure&&Number(f.measure.delta_inr)>0);
+  const added=drips.reduce((a,f)=>a+Number(f.measure.delta_inr),0);
+  const plats=new Set(L.map(f=>f.platform)),conf=C.length;
+  let h1='Waiting for the backend.',sub='';
+  if(S.loaded&&S.source!=='none'){
+    if(!L.length){h1='Nothing caught yet.';sub='Run a probe from the desk. The first finding lands here the moment the agent reaches the payment page.'}
+    else{h1=added>0?`<span class="mark">${inr(added)}</span> was added after the price was shown, across ${plural(drips.length,'confirmed checkout')}.`:conf?`${plural(conf,'dark pattern')} confirmed on tested checkouts.`:`${plural(L.length,'candidate')} under review, none confirmed yet.`;
+      sub=`${plural(L.length,'finding')} from ${plural(plats.size,'platform')}. ${conf} confirmed, ${L.length-conf} still candidates. ${S.source==='demo'?'Sample data, preview only':S.source==='snapshot'?'Saved snapshot from '+when(S.updated):'Last refreshed '+(S.updated?S.updated.toLocaleTimeString('en-IN'):'')}.`}
+  }else if(S.loaded){sub='The page can’t reach the backend yet, so nothing is shown. Nothing on this screen is placeholder data.'}
+  const pset=[...new Set(L.map(f=>f.pattern))];
+  const vis=L.filter(f=>(S.filt.p==='all'||f.pattern===S.filt.p)&&(S.filt.s==='all'||f.status===S.filt.s)).sort((a,b)=>new Date(b.detected_at)-new Date(a.detected_at));
+  const chip=(t,k,v)=>`<button class="chip" aria-pressed="${S.filt[k]===v}" data-k="${k}" data-v="${v}">${esc(t)}</button>`;
+  const filters=L.length?`<div class="filters" role="group" aria-label="Filter findings">${chip('All patterns','p','all')}${pset.map(p=>chip(plabel(p),'p',p)).join('')}</div>
+    <div class="filters" role="group" aria-label="Filter by status">${chip('Any status','s','all')}${chip('Confirmed','s','confirmed')}${chip('Candidate','s','candidate')}</div>`:'';
+  let list='';
+  if(S.loaded&&S.source==='none')list=`<div class="msg"><b>Can’t reach ${esc(where())}.</b><p>Start the backend on port 8000, then press Check connection. It also reconnects on its own within a few seconds.${S.err?' ('+esc(S.err)+')':''}</p><p><button class="chip" id="bchk">Check connection</button> <button class="chip" id="baddr2">Change address</button> <button class="chip" id="bdemo">Preview with sample data</button></p></div>`;
+  else if(S.loaded&&!L.length)list=`<div class="msg"><b>No findings yet.</b><p>Enter a platform and its entry URL on the left, then run a probe. A run takes a minute or two.</p></div>`;
+  else if(L.length&&!vis.length)list='<p class="none">No findings match these filters.</p>';
+  else if(vis.length)list='<div class="list">'+vis.map(f=>`<a class="row" href="#/f/${encodeURIComponent(f.finding_id)}">
+      <span class="pl">${esc(f.platform)}</span><span style="grid-row:1;grid-column:2">${tagOf(f)}</span>
+      <span class="hd num">${esc(headline(f))}</span>
+      <span class="meta"><span>${esc(plabel(f.pattern))}</span>${f.evidence&&f.evidence.reproduced_in?`<span>Reproduced in ${esc(f.evidence.reproduced_in)}</span>`:''}<span>${esc(when(f.detected_at))}</span></span></a>`).join('')+'</div>';
+  const pg=S.page;
+  const kp=L.length?`<div class="kpis"><div><b class="num">${L.length}</b>findings</div><div><b class="num">${plats.size}</b>platforms</div><div><b class="num">${conf}</b>confirmed</div><div><b class="num">${added?inr(added):'None'}</b>added after the price was shown</div></div>`:'';
+  $('#main').innerHTML=pg==='platforms'?platformsPage(L):pg==='method'?METHOD:`<h1>${h1}</h1><p class="sub">${sub}</p>${kp}${L.length?'<h2 class="sec2">Latest catches</h2>':''}${filters}${list}`;
+  $('#main').querySelectorAll('.chip[data-k]').forEach(b=>b.onclick=()=>{S.filt[b.dataset.k]=b.dataset.v;paintHome()});
+  if($('#bchk')){$('#bchk').onclick=recheck;$('#baddr2').onclick=chAddr;$('#bdemo').onclick=()=>{store('dr_demo','1');refresh()}}
+  gate();
+}
+const tagOf=f=>(f.status==='confirmed'?'<span class="tag c">Confirmed</span>':'<span class="tag k">Candidate</span>')+(S.source==='demo'?' <span class="tag d">Sample</span>':'');
+
+
+function menu(open){
+  S.menu=open;const d=$('#dash'),bg=$('#burger');
+  d.inert=!open;d.classList.toggle('open',open);$('#scrim').classList.toggle('open',open);bg.classList.toggle('open',open);
+  bg.setAttribute('aria-expanded',open);bg.setAttribute('aria-label',open?'Close menu':'Open menu');
+  document.body.classList.toggle('lock',open);
+  if(open)d.focus();else bg.focus();
+}
+$('#dx').onclick=()=>menu(false);$('#nav').onclick=e=>{if(e.target.closest('a')&&S.menu)menu(false)};$('#burger').onclick=()=>menu(!S.menu);$('#scrim').onclick=()=>menu(false);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&S.menu)menu(false)});
+
+
+/* ---------- What's on: live Indian news, charts and the headline-to-probe flow ----------
+   News comes from the frontend server (/live-news -> Google News India, Indian publishers only).
+   Everything on this page is recomputed from the stories each time they refresh (every 5 minutes). */
+const NEWS_EVERY=300000;
+const CORE=/(dark patterns?|deceptive design|hidden (charge|fee|cost)s?|(convenience|platform|handling|processing|packaging|service|cancellation|booking|rain|delivery) (fee|charge)s?|drip pricing|surcharge|overcharg|surge|dynamic pricing|\bfares?\b|refund|subscription|auto-?renew|free trial|ccpa|central consumer protection|consumer protection)/i;
+const EXCL=/\b(school|college|tuition|university|exam|admission|sensex|nifty|ipo|mutual fund|cricket|ipl|box office|income tax|itr)\b/i;
+const TOPICS=[
+ {k:'reg',n:'Regulator action',re:/(ccpa|central consumer protection|consumer protection|consumer affairs|penalt|\bfined?\b|\bfines\b|show[- ]cause|advisory|guidelines|amendment rules|e-commerce rules|irdai|sebi|\brbi\b|consumer commission|consumer court|self-audit|crackdown|notices? to)/i},
+ {k:'fees',n:'Hidden fees and charges',re:/(hidden (charge|fee|cost)|(convenience|platform|handling|processing|packaging|service|cancellation|booking|rain|delivery) (fee|charge)s?|drip pricing|surcharge|extra charge|overcharg)/i},
+ {k:'surge',n:'Surge and dynamic pricing',re:/(surge|dynamic pricing|peak pricing|\bfares?\b|price hike)/i},
+ {k:'subs',n:'Subscriptions and refunds',re:/(subscription|auto-?renew|free trial|refund|cancel(?:l?ation)?\b)/i},
+ {k:'dark',n:'Dark patterns and nudges',re:/(dark patterns?|deceptive|nudg|false urgency|countdown|confirm ?shaming|manipulat|misleading)/i}];
+const PLATS=['Swiggy','Zomato','Blinkit','Zepto','Instamart','BigBasket','Amazon','Flipkart','Myntra','Meesho','Ajio','Nykaa','MakeMyTrip','Goibibo','Ixigo','Cleartrip','EaseMyTrip','IRCTC','BookMyShow','IndiGo','Air India','SpiceJet','Akasa Air','Ola','Uber','Rapido','Namma Yatri','Paytm','PhonePe','Google Pay','Jio','Airtel','PhysicsWallah','McAfee','PolicyBazaar','Urban Company','Lenskart','redBus','Zerodha','Groww','Netflix','Spotify','Hotstar'];
+const PLAT_RE=PLATS.map(n=>({n,re:new RegExp('\\b'+n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/ /g,'\\s+')+(n==='Ola'?'\\b(?!\\s+Electric)':'\\b'),'i')}));
+const topicOf=t=>{for(const x of TOPICS)if(x.re.test(t))return x;return{k:'other',n:'Other consumer pricing news'}};
+const platsOf=t=>PLAT_RE.filter(p=>p.re.test(t)).map(p=>p.n);
+const istDay=t=>new Date(t).toLocaleDateString('en-CA',{timeZone:'Asia/Kolkata'});
+const ago=t=>{const m=Math.round((Date.now()-t)/6e4);return m<60?Math.max(m,1)+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' d ago'};
+
+function rankNews(items){
+  const cl=[];
+  [...items].sort((a,b)=>b.t-a.t).forEach(i=>{const k=tok(i.title);
+    const c=cl.find(c=>{let n=0;k.forEach(w=>c.k.has(w)&&n++);return n/Math.max(1,Math.min(k.size,c.k.size))>=.6});
+    if(c)c.srcs.add(i.src);else cl.push({lead:i,k,srcs:new Set([i.src])})});
+  const now=Date.now();
+  return cl.map(c=>{const h=(now-c.lead.t)/36e5,o=c.srcs.size,sc=o*2+(h<12?4:h<24?3:h<72?2:h<168?1:0)+(c.lead.topic.k==='reg'?1:0);
+    return{...c.lead,outlets:o,score:sc,hot:sc>=6}}).sort((a,b)=>b.score-a.score||b.t-a.t);
+}
+const tok=t=>new Set(t.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(w=>w.length>3));
+
+async function loadNews(force){
+  const n=S.news;if(n.loading)return;
+  n.loading=true;paintLive();
+  try{
+    const r=await fetch('/live-news'+(force?'?fresh=1':''),{cache:'no-store'});
+    if(!r.ok){let m='news service answered '+r.status;try{const j=await r.json();if(j.error)m=j.error}catch(e){}throw new Error(m)}
+    const d=await r.json();
+    if(!d||!Array.isArray(d.items))throw new Error('news response was not readable');
+    const items=d.items.filter(i=>i.title&&/^https?:/.test(i.link)&&i.t&&(!EXCL.test(i.title)||/dark pattern/i.test(i.title))&&CORE.test(i.title))
+      .map(i=>({...i,topic:topicOf(i.title),plats:platsOf(i.title)}));
+    n.all=items;n.items=rankNews(items);n.t=new Date();n.err='';n.snap=false;n.total=d.count
+  }catch(e){n.err=e.message;if(!n.items.length){const it=NEWS_SNAP.map(i=>({...i,topic:topicOf(i.title),plats:platsOf(i.title)}));n.all=it;n.items=rankNews(it);n.t=new Date(NEWS_SNAP_AT);n.snap=true}}
+  n.loading=false;n.nextAt=Date.now()+NEWS_EVERY;
+  paintLive();paintNews();
+}
+
+function dailyChart(stories,days){
+  const today=istDay(Date.now()),keys=[];
+  for(let i=days-1;i>=0;i--)keys.push(istDay(Date.now()-i*864e5));
+  const cnt=Object.fromEntries(keys.map(k=>[k,0]));stories.forEach(s=>{const k=istDay(s.t);if(k in cnt)cnt[k]++});
+  const max=Math.max(...Object.values(cnt),1),W=560,H=150,step=(W-20)/days,bw=Math.min(26,step-8);
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Stories per day, last ${days} days">`+keys.map((k,i)=>{
+    const v=cnt[k],h=v/max*80,x=10+i*step+(step-bw)/2,d=new Date(k+'T00:00:00');
+    const lab=d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    return `<rect x="${x}" y="${104-h}" width="${bw}" height="${Math.max(h,1.5)}" rx="2" style="fill:${k===today?'var(--brand)':'var(--teal)'}"/>`+
+      (v?`<text x="${x+bw/2}" y="${98-h}" text-anchor="middle" font-size="12" font-weight="600" font-family="Bricolage Grotesque" style="fill:var(--ink)">${v}</text>`:'')+
+      (i%2===(days-1)%2?`<text x="${x+bw/2}" y="126" text-anchor="middle" font-size="10.5" font-family="Bricolage Grotesque" style="fill:var(--slate)">${esc(lab)}</text>`:'')}).join('')+'</svg>';
+}
+
+function paintLive(){
+  const el=$('#livebar');if(!el)return;const n=S.news;
+  const left=n.nextAt?Math.max(0,Math.round((n.nextAt-Date.now())/1000)):0,mm=Math.floor(left/60),ss=String(left%60).padStart(2,'0');
+  el.innerHTML=`<span class="ldot${n.loading?' spin':''}"></span><span>${n.loading?'Fetching the latest Indian headlines…':n.t?'Updated '+n.t.toLocaleTimeString('en-IN')+'. Next refresh in <b class="num" id="cd">'+mm+':'+ss+'</b>.':'Waiting for the first load.'}</span><button class="chip" id="nref"${n.loading?' disabled':''}>Refresh now</button>`;
+  const b=$('#nref');if(b)b.onclick=()=>loadNews(true);
+}
+function tickLive(){const n=S.news,c=$('#cd');if(!c||!n.nextAt)return;const left=Math.max(0,Math.round((n.nextAt-Date.now())/1000));c.textContent=Math.floor(left/60)+':'+String(left%60).padStart(2,'0')}
+
+function storyRow(i){
+  return `<a class="row" href="${esc(i.link)}" target="_blank" rel="noopener noreferrer"><span class="pl">${esc(i.src)}, ${ago(i.t)}</span><span class="tags" style="grid-row:1;grid-column:2">${i.hot?'<span class="tag h">Hot</span>':''}${i.outlets>1?`<span class="tag c">${i.outlets} outlets</span>`:''}</span><span class="hd">${esc(i.title)}</span><span class="meta"><span>${esc(i.topic.n)}</span>${i.plats.length?`<span>${esc(i.plats.join(', '))}</span>`:''}</span></a>`;
+}
+function flowRows(stories){
+  const m={};stories.forEach(s=>s.plats.forEach(p=>(m[p]||(m[p]=[])).push(s)));
+  const rows=Object.entries(m).map(([k,v])=>({k,n:v.length})).sort((a,b)=>b.n-a.n||a.k.localeCompare(b.k)).slice(0,6);
+  if(!rows.length)return'<p class="none">No named platform appears in the current headlines.</p>';
+  const mine=name=>S.findings.filter(f=>String(f.platform||'').toLowerCase().includes(name.toLowerCase())).sort((a,b)=>new Date(b.detected_at)-new Date(a.detected_at));
+  return '<div class="flow">'+rows.map(r=>{
+    const F=mine(r.k),c=F.filter(f=>f.status==='confirmed').length;
+    const mid=F.length?`<b class="num">${plural(F.length,'finding')}</b><small>${c} confirmed, ${F.length-c} candidate</small>`:`<b>Not measured yet</b><small>${S.loaded&&S.source!=='none'?'No finding names this platform':'Backend data not loaded'}</small>`;
+    const act=F.length?`<a class="btn2" href="#/f/${encodeURIComponent(F[0].finding_id)}">Open latest finding</a>`:`<button class="btn2" data-probe="${esc(r.k)}">Probe ${esc(r.k)}</button>`;
+    return `<div class="fr"><div><b>${esc(r.k)}</b><small>${plural(r.n,'story')} in the news</small></div><span class="arr" aria-hidden="true">&#8594;</span><div>${mid}</div><span class="arr" aria-hidden="true">&#8594;</span><div>${act}</div></div>`}).join('')+'</div>';
+}
+function paintNews(){
+  const el=$('#newsarea');if(!el)return;const n=S.news,st=n.items;
+  if(!st.length){
+    el.innerHTML=n.err?`<div class="msg"><b>Couldn’t load live news.</b><p>${esc(n.err)}. The page asks the frontend server (<span class="ids">/live-news</span>), which asks Google News India. Check that the computer running the frontend is online, then press Refresh now.</p></div>`
+      :`<p class="none">${n.loading?'Loading live headlines…':'No Indian stories on hidden charges or dark patterns in the last 30 days.'}</p>`;return}
+  const hot=st.slice(0,6),more=st.slice(6,22);
+  const tc={};st.forEach(s=>tc[s.topic.n]=(tc[s.topic.n]||0)+1);
+  const trows=Object.entries(tc).map(([k,v])=>({k,v})).sort((a,b)=>b.v-a.v);
+  const oc={};n.all.forEach(i=>oc[i.src]=(oc[i.src]||0)+1);
+  const orows=Object.entries(oc).map(([k,v])=>({k,v})).sort((a,b)=>b.v-a.v).slice(0,6);
+  const fresh=st.filter(s=>Date.now()-s.t<864e5).length;
+  el.innerHTML=(n.snap?`<p class="warn">The live news feed is not reachable from here, so these are headlines saved on 24 Oct 2026 (times approximate). The page switches to live headlines by itself once the frontend server is online.</p>`:n.err?`<p class="warn">Couldn’t refresh just now, showing the last successful load. (${esc(n.err)})</p>`:'')+
+  `<div class="kpis3"><div><b class="num">${st.length}</b>Indian stories in 30 days</div><div><b class="num">${fresh}</b>in the last 24 hours</div><div><b class="num">${st.filter(s=>s.outlets>1).length}</b>covered by 2 or more outlets</div></div>
+  <h2 class="sec2">Hot right now</h2><p class="none" style="margin-bottom:6px">Ranked by how many outlets carry the same story and how recent it is. “Hot” means widely covered or very fresh.</p>
+  <div class="list">${hot.map(storyRow).join('')}</div>
+  <h2 class="sec2" style="margin-top:44px">What the news is about</h2>
+  <div class="charts" style="margin-top:14px"><div><h3>Stories by topic</h3>${bars(trows,null)}</div><div><h3>Stories per day, last 14 days</h3>${dailyChart(st,14)}</div><div class="wide"><h3>Outlets covering this</h3>${bars(orows,null)}</div></div>
+  <h2 class="sec2">From the headline to a probe</h2><p class="none" style="margin-bottom:12px">Platforms named in the headlines, checked against what Darkroom has already measured. Probing opens Home with the platform name filled in.</p>${flowRows(st)}
+  ${more.length?`<details id="moreN" style="margin-top:40px"${n.more?' open':''}><summary class="sec">More headlines (${more.length})</summary><div class="list">${more.map(storyRow).join('')}</div></details>`:''}`;
+  const d=$('#moreN');if(d)d.ontoggle=()=>{S.news.more=d.open};
+  el.querySelectorAll('[data-probe]').forEach(b=>b.onclick=()=>{S.form.platform=b.dataset.probe;saveForm();nav('#/')});
+}
+function paintWhatsOn(){
+  const m=$('#main');if(!m)return;
+  m.innerHTML=`<h1>What’s on</h1><p class="sub">Indian news on hidden charges and dark patterns, set beside what Darkroom has measured. It refreshes itself.</p>
+  <div class="live" id="livebar" aria-live="polite"></div><div id="newsarea"></div>
+  `;
+  paintLive();paintNews();
+  if(!S.news.t||Date.now()-S.news.t>NEWS_EVERY)loadNews();
+}
+const sigOf=()=>S.findings.map(f=>f.finding_id+':'+f.status).join('|')+'|'+S.source;
+function repaintOpenPage(){
+  if(S.page==='whatson'){const g=sigOf();if(g!==S.sig){S.sig=g;paintNews()}}
+  else paintHome();
+}
+setInterval(tickLive,1000);
+setInterval(()=>{if(S.page==='whatson'&&!S.news.loading&&S.news.nextAt&&Date.now()>=S.news.nextAt)loadNews()},5000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.page==='whatson'&&S.news.t&&Date.now()-S.news.t>NEWS_EVERY)loadNews()});
+
+/* ---------- probes ---------- */
+function paintRuns(){
+  const el=$('#runs');if(!el)return;
+  el.innerHTML=S.runs.slice(0,4).map(r=>{
+    const s=Math.round((Date.now()-r.t0)/1000);
+    return `<div class="run"><b>${esc(r.platform)}</b>${r.live?`<div class="bar"></div>`:''}
+      <span class="${r.status==='FAILED'?'fail':''}">${esc(r.status)}${r.progress?': '+esc(r.progress):''}</span>
+      ${r.live?`<br><span class="num">${s}s elapsed. Stops before payment.</span>`:r.fid?`<br><a href="#/f/${encodeURIComponent(r.fid)}">Open the finding</a>`:''}</div>`}).join('');
+  $('#go')&&($('#go').textContent=busy()?'Shopping…':'Run probe');
+}
+function demoRun(){
+  const r={id:'demo',platform:'Demo Eats (sample run)',status:'PENDING',progress:'queued',live:true,t0:Date.now(),fid:null};
+  S.runs.unshift(r);paintRuns();
+  const st=[['RUNNING','opening the listing, ₹499 shown'],['RUNNING','adding the item to the cart'],['RUNNING','at checkout, price now ₹567'],['RUNNING','payment page reached, price now ₹626'],['COMPLETED','stopped before payment']];
+  st.forEach((x,i)=>setTimeout(()=>{r.status=x[0];r.progress=x[1];if(i===st.length-1){r.live=false;r.fid='dm1';nav('#/f/dm1')}paintRuns()},1300*(i+1)));
+}
+async function run(){
+  if(S.source==='demo')return demoRun();
+  const url=S.form.url.trim(),platform=S.form.platform.trim()||new URL(url,location.href).hostname;
+  if(!url)return;
+  const r={id:null,platform,status:'PENDING',progress:'queued',live:true,t0:Date.now(),fid:null};
+  S.runs.unshift(r);paintRuns();
+  try{
+    r.id=(await startProbe(platform,url)).run_id;
+    const iv=setInterval(async()=>{
+      try{const d=await getRun(r.id);r.status=d.status;r.progress=d.progress||'';
+        if(['COMPLETED','FAILED'].includes(d.status)){r.live=false;r.fid=d.finding_id||null;clearInterval(iv);await refresh();if(r.fid)nav('#/f/'+encodeURIComponent(r.fid))}}
+      catch(e){/* a dropped poll must not end the run */}
+      paintRuns()},2000);
+  }catch(e){r.status='FAILED';r.progress=e.message;r.live=false}
+  paintRuns();
+}
+setInterval(()=>{if(busy())paintRuns()},1000);
+
+/* ---------- detail ---------- */
+const STEP={listing:'Price shown on the listing',cart:'In the cart',checkout:'At checkout',payment:'On the payment page'};
+function stairs(p){
+  if(p.length<2)return'';
+  const W=420,H=110,lo=Math.min(...p.map(x=>x.v)),hi=Math.max(...p.map(x=>x.v)),rg=Math.max(hi-lo,1);
+  const pts=p.map((x,i)=>[24+i*((W-48)/(p.length-1)),86-(x.v-lo)/rg*58]);
+  const path=pts.map((q,i)=>(i?'L':'M')+q[0]+' '+q[1]).join(' ');
+  return `<svg class="stairs" viewBox="0 0 ${W} ${H}" role="img" aria-label="Price at each step"><path d="${path}" fill="none" stroke="#16241F" stroke-width="3" stroke-linejoin="round"/>`+
+   pts.map((q,i)=>{const up=i&&p[i].v>p[i-1].v;return `<circle cx="${q[0]}" cy="${q[1]}" r="${up?7:5}" fill="${up?'#F2382B':'#16241F'}" stroke="#16241F" stroke-width="2.5"/><text x="${q[0]}" y="${q[1]-14}" text-anchor="middle" font-size="13" font-weight="600" font-family="Bricolage Grotesque" fill="#16241F">${inr(p[i].v)}</text>`}).join('')+'</svg>';
+}
+function receipt(steps){
+  const pr=(steps||[]).filter(s=>s.price_displayed!=null);
+  if(!pr.length)return `<div class="receipt"><h2>What the price did</h2><p class="none">The agent didn’t record a price at any step for this run.</p></div>`;
+  const first=pr[0].price_displayed,last=pr[pr.length-1].price_displayed;
+  const rows=pr.map((s,i)=>{
+    const jump=i?s.price_displayed-pr[i-1].price_displayed:0,added=(s.line_items||[]).filter(l=>l.added_by_us===false);
+    const last_=i===pr.length-1;
+    return `<div class="lr${last_?' tot':''}"><span>${esc(STEP[s.name]||s.name)}</span><span class="lead"></span>${jump>0?`<span class="mark num">+${inr(jump)}</span>`:''}<span class="p num">${inr(s.price_displayed)}</span></div>`+
+      (added.length?`<div class="li">Added by the platform: ${added.map(l=>esc(l.name)+' '+inr(l.amount)).join(', ')}</div>`:'')}).join('');
+  const diff=last-first;
+  return `<div class="receipt"><h2>What the price did</h2><p class="sm">Recorded by the agent at each step of one run.</p>${stairs(pr.map(s=>({v:s.price_displayed})))}${rows}
+    ${diff>0?`<p style="margin:14px 0 0;font:600 17px 'Bricolage Grotesque'"><span class="mark">${inr(diff)} more</span> than the ${inr(first)} that was advertised (${(diff/first*100).toFixed(1).replace(/\.0$/,'')}%).</p>`:`<p class="none" style="margin-top:14px">No increase between the listing and the payment page in this run.</p>`}</div>`;
+}
+async function detail(id){
+  $('#app').innerHTML=`<a class="back" href="#/">Back to findings</a><p class="none" style="margin-top:30px">Loading finding…</p>`;
+  let d;
+  try{d=await getFinding(id)}catch(err){const sn=await loadSnapshot();if(sn&&sn.details&&sn.details[id])d=sn.details[id]}
+  if(!d&&S.source==='demo')d=DEMO.det[id];
+  if(!d){const e=new Error(S.source==='snapshot'?'This finding is not in the saved snapshot':'The backend did not return this finding');
+    $('#app').innerHTML=`<a class="back" href="#/">Back to findings</a><div class="msg"><b>Couldn’t load this finding.</b><p>${esc(e.message)}. Check that the backend is running (${esc(where())}).</p></div>`;return}
+  const f=d.finding,ev=f.evidence||{},m=f.measure||{},js=(d.journey_states||[])[0],conf=f.status==='confirmed';
+  const rep=/(\d+)\s*of\s*(\d+)/.exec(ev.reproduced_in||'');
+  const dots=rep&&+rep[2]<=24?`<div class="dots" aria-label="${esc(ev.reproduced_in)}">${Array.from({length:+rep[2]},(_,i)=>`<i class="${i<+rep[1]?'f':''}"></i>`).join('')}</div>`:'';
+  const video=ev.video_ref||(js&&js.artifacts&&js.artifacts.video_ref);
+  let big='';
+  if(f.pattern==='drip_pricing'&&m.delta_inr!=null)big=`<p class="big num">${inr(m.delta_inr)}<small>added between the listed price and the payment page${m.delta_pct!=null?', '+m.delta_pct+'% more than advertised':''}.</small></p>`;
+  else big=`<p class="big" style="font-size:clamp(30px,4vw,52px);letter-spacing:-.03em">${esc(headline(f))}</p>`;
+  const ids=(ev.observation_ids||[]);
+  const g=grade({...f,evidence:{...ev,video_ref:video}}),ck=[['Measured number',g.c.number],['Recording attached',g.c.recording],['Matching legal clause',g.c.clause],['Reproduced in two thirds of runs',g.c.repro]];
+  const checks=`<ul class="ck">${ck.map(([t,v])=>`<li><span>${t}</span><span class="${v?'y':'n'}">${v?'Yes':'Not attached'}</span></li>`).join('')}</ul><p>${g.pub?'A measured number, a recording and a clause are all attached.':'Some evidence is not attached to this finding yet.'}</p>`;
+  $('#app').innerHTML=`<a class="back" href="#/">Back to findings</a>
+  <div class="dhead"><h1>${esc(plabel(f.pattern))}</h1>${tagOf(f)}<span class="ui" style="color:var(--slate);font-size:18px">${esc(f.platform)}</span></div>
+  ${big}${conf?'<span class="press">Stopped before payment</span>':''}
+  <div class="dgrid">
+    ${js?receipt(js.steps):`<div class="receipt"><h2>What the price did</h2><p class="none">No step-by-step journey was returned for this finding.</p></div>`}
+    <div class="side">
+      <h3>Legal basis</h3><p class="legal">${esc(f.clause||'No clause recorded.')}</p>
+      <h3>Reproduced</h3>${ev.reproduced_in?`<p>Seen in ${esc(ev.reproduced_in)}.</p>${dots}`:'<p class="none">Reproduction count not recorded.</p>'}
+      <p>${plural(ids.length,'observation')} behind this finding. Detected ${esc(when(f.detected_at))}.</p>${ids.length?`<p class="ids">${ids.map(esc).join('<br>')}</p>`:''}
+      <h3>Evidence checklist</h3>${checks}
+      <h3>Recording of the run</h3>
+      ${video?`<video controls preload="metadata" src="${esc(media(video))}"></video>`:`<div class="msg" style="margin:0"><b>${S.source==='demo'?'No recording in the sample.':'Recording not attached for this observation.'}</b><p style="margin:6px 0 0">${S.source==='demo'?'With the backend connected, the agent’s screen recording plays here.':'The run was recorded as price steps only.'}</p></div>`}
+      <h3>Right of reply</h3><p>${esc(f.platform)} is offered a right of reply before publication.</p>
+    </div>
+  </div>
+  <p class="fine">Darkroom reports measurements, not verdicts. Figures describe what the interface displayed during an automated session that never completed a payment. Platforms are offered a right of reply before publication.</p>`;
+  scrollTo(0,0);
+}
+
+/* ---------- router ---------- */
+function route(){const m=/^#\/f\/(.+)$/.exec(H),pg=(/^#\/(platforms|method|whats-on)/.exec(H)||[])[1]||'home';return{id:m?decodeURIComponent(m[1]):null,page:pg==='whats-on'?'whatson':pg}}
+function go(){const r=route();if(S.menu)menu(false);S.page=r.page;$('#pillnews').hidden=r.page==='whatson';const cur=r.id!==null?'home':r.page;document.querySelectorAll('#nav a').forEach(a=>{const on=a.dataset.p===cur;a.classList.toggle('act',on);on?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current');if(on)$('#here').textContent=a.textContent});if(r.id!==null)detail(r.id);else{shell();if(r.page==='whatson')paintWhatsOn();else paintHome()}}
+addEventListener('hashchange',()=>{H=location.hash;go()});addEventListener('popstate',()=>{H=location.hash;go()});
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href^="#/"]');if(a&&!e.metaKey&&!e.ctrlKey&&!e.shiftKey&&e.button===0){e.preventDefault();nav(a.getAttribute('href'))}});
+go();refresh();
+setInterval(()=>{if(route().id===null)refresh()},10000);
+setInterval(health,8000);
+</script>
+</body>
+</html>
