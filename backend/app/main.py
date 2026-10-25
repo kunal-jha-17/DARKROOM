@@ -579,3 +579,16 @@ def replay_spec(spec_id: str, req: ReplayRequest = ReplayRequest()):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+
+
+# ---------- compliance report (additive: nothing above this line changes) ----
+
+@app.get("/api/findings/{finding_id}/report")
+def finding_report(finding_id: str):
+    """The finding, priced against CCPA precedent, with the fix and the benchmark."""
+    from . import exposure
+    detail = get_finding(finding_id)            # reuses the existing endpoint
+    everything = list_findings().get("findings", [])
+    out = exposure.report(detail["finding"], everything)
+    out["journey_states"] = detail.get("journey_states", [])
+    return out
