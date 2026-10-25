@@ -99,6 +99,28 @@ GOAL = (
     "Return JSON only."
 )
 
+# Fast path: reach the payment page FIRST, record it, tidy up only if time allows.
+# A timeout during cleanup then still leaves us a complete measurement.
+GOAL_FAST = (
+    "{pick}"
+    "Add exactly ONE to the cart. Go straight to the payment page. "
+    "CRITICAL: do NOT enter any card details and do NOT submit payment. Stop at "
+    "the payment page. "
+    "Record, for every step: the price displayed, every line item in the cart with "
+    "its amount, the text of any countdown timer, the text of any stock warning, "
+    "and the final total shown on the payment page. "
+    "The 'steps' array MUST have one entry for each page you visit, named exactly "
+    "'listing', 'cart', 'checkout' or 'payment', each with its url and price. "
+    "Also fill 'product_name', and 'payment_line_items' with EVERY row in the "
+    "payment page's price breakdown (product, delivery, fees, add-ons, discounts "
+    "as negative amounts). "
+    "If a login, OTP, signup wall or bot check stops you, do NOT sign in: stop there "
+    "and still return every step you reached with what you saw. "
+    "ONLY after the payment page is recorded, if there is time, empty the cart. "
+    "Returning the JSON matters more than emptying the cart. "
+    "Return JSON only."
+)
+
 # Words the agent uses in its own action log when a site stops it.
 _BLOCKED_RE = re.compile(
     r"\b(blocked|login required|sign[- ]?in required|requires? (login|sign[- ]?in|auth)"
@@ -161,7 +183,8 @@ def _pick(entry_url: Optional[str], budget: int) -> str:
 def build_goal(platform: str, budget: int, intent: Optional[str] = None,
                entry_url: Optional[str] = None) -> str:
     """Base goal plus platform-specific notes (e.g. how to order food)."""
-    goal = GOAL.format(site=platform, pick=_pick(entry_url, budget))
+    _tmpl = GOAL if os.environ.get("DARKROOM_THOROUGH") == "1" else GOAL_FAST
+    goal = _tmpl.format(site=platform, pick=_pick(entry_url, budget))
     if intent:
         goal += (" Platform-specific instructions (follow these, but every rule "
                  f"above still applies, especially never paying): {intent.strip()}")
