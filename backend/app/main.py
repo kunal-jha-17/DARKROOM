@@ -233,6 +233,27 @@ def display_name(key: str) -> str:
     return key[:1].upper() + key[1:] if key else key
 
 
+_LOGIN_RE = re.compile(r"\b(log ?in|sign ?in|sign ?up|otp|password|register|create (an )?account|verify (your )?(phone|mobile))\b", re.I)
+_BOT_RE = re.compile(r"\b(captcha|bot|blocked|access denied|forbidden|not accessible|inaccessible|unreachable|cloudflare|verify you are human|empty responses?)\b", re.I)
+
+
+def failure_reason(outcome: str, actions: list) -> str:
+    """Plain-language reason a run did not reach the payment page, read from
+    the agent's own last actions, so the dashboard says what to do next."""
+    text = " | ".join(a or "" for a in actions)
+    last = (actions[-1] if actions else "").strip()
+    if _LOGIN_RE.search(text):
+        return ("the site asked for a login. Sign in to it once in your TinyFish "
+                "profile (no saved card or UPI), then run it again")
+    if outcome == "SITE_BLOCKED" or _BOT_RE.search(text):
+        return "the site's bot protection blocked the agent"
+    if outcome == "TIMEOUT":
+        return "ran out of time" + (f"; last step: {last[:90]}" if last else "")
+    if outcome == "MAX_STEPS_EXCEEDED":
+        return "the agent ran out of steps"
+    return "the agent did not reach the payment page" + (f"; last step: {last[:90]}" if last else "")
+
+
 def _preset(req: "ProbeRequest") -> "ProbeRequest":
     url = (req.entry_url or "").strip()
     raw = req.platform.strip() or url
@@ -252,9 +273,13 @@ def _preset(req: "ProbeRequest") -> "ProbeRequest":
     return req.model_copy(update={
         "platform": name,
         "entry_url": url,
-        "session": req.session or preset.get("session", "fresh"),
-        "budget": req.budget or preset.get("budget", 600),
-        "intent": req.intent or preset.get("intent"),
+        # Any site: use the saved login profile when one is configured. Sites
+        # the profile is not signed in to behave exactly like a fresh visit.
+        "session": req.session or preset.get("session") or (
+            "logged_in" if tinyfish._profile(None) else "fresh"),
+        "budget": req.budget or preset.get("budget", 300),
+        # Every site gets the price-recording instructions, not just presets.
+        "intent": req.intent or preset.get("intent") or _PRICE_INTENT,
     })
 
 
@@ -312,10 +337,7 @@ def _execute(run_id: str, req: ProbeRequest):
                 _save_finding(db, f)
             db.commit()
 
-        why = {"SITE_BLOCKED": "site blocked the agent",
-               "TIMEOUT": "run timed out and was stopped",
-               "MAX_STEPS_EXCEEDED": "agent ran out of steps"}.get(js.outcome,
-                                                                   "agent did not reach payment")
+        why = failure_reason(js.outcome, tinyfish.last_actions(run, 8))
         RUNS[run_id] = {
             "status": "COMPLETED" if js.outcome == "COMPLETED" else "FAILED",
             "outcome": js.outcome,
