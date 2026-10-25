@@ -7,3 +7,4 @@ __pycache__/
 backend/evidence/
 backend/samples/runs/
 .DS_Store
+node_modules/

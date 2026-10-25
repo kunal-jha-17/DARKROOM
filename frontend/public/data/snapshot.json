@@ -1,0 +1,297 @@
+{
+  "exported_at": "2026-10-25T03:25:52.142Z",
+  "source": "http://127.0.0.1:8000",
+  "count": 1,
+  "findings": [
+    {
+      "finding_id": "f_0c29f6",
+      "platform": "Flipkart",
+      "pattern": "drip_pricing",
+      "severity": "high",
+      "measure": {
+        "delta_inr": 37,
+        "delta_pct": 26.62,
+        "from": 139,
+        "to": 176,
+        "listed": 139
+      },
+      "clause": "CCPA Guidelines for Prevention and Regulation of Dark Patterns, 2023 — drip pricing",
+      "evidence": {
+        "observation_ids": [
+          "obs_e762cf82"
+        ],
+        "video_ref": "/media/09c417f2-6e42-4160-8b16-6175d7f5a2df.webm",
+        "reproduced_in": "1 of 1 observations"
+      },
+      "status": "candidate",
+      "detected_at": "2026-10-24T15:28:41.777546Z"
+    }
+  ],
+  "details": {
+    "f_0c29f6": {
+      "finding": {
+        "finding_id": "f_0c29f6",
+        "platform": "Flipkart",
+        "pattern": "drip_pricing",
+        "severity": "high",
+        "measure": {
+          "delta_inr": 37,
+          "delta_pct": 26.62,
+          "from": 139,
+          "to": 176,
+          "listed": 139
+        },
+        "clause": "CCPA Guidelines for Prevention and Regulation of Dark Patterns, 2023 — drip pricing",
+        "evidence": {
+          "observation_ids": [
+            "obs_e762cf82"
+          ],
+          "video_ref": "/media/09c417f2-6e42-4160-8b16-6175d7f5a2df.webm",
+          "reproduced_in": "1 of 1 observations"
+        },
+        "status": "candidate",
+        "detected_at": "2026-10-24T15:28:41.777546Z"
+      },
+      "journey_states": [
+        {
+          "observation_id": "obs_e762cf82",
+          "probe_spec_id": "spec_d09195",
+          "platform": "Flipkart",
+          "condition": {
+            "session": "logged_in",
+            "run_index": 0,
+            "captured_at": "2026-10-24T14:47:25.288345Z"
+          },
+          "steps": [
+            {
+              "index": 0,
+              "name": "listing",
+              "url": "https://www.flipkart.com/search?q=earphones+under+150&sid=0pm,fcn,821",
+              "price_displayed": 139,
+              "currency": "INR",
+              "line_items": [
+                {
+                  "name": "ZEBRONICS ZEB-BRO, With In-Line MiC, 3.5mm Jack, 10mm drivers, Compatible for Phone/Tablet Wired",
+                  "amount": 139,
+                  "added_by_us": true,
+                  "pre_existing": false
+                }
+              ],
+              "timers": [],
+              "stock_claims": [],
+              "checkboxes": [],
+              "buttons": [],
+              "screenshot_ref": null
+            },
+            {
+              "index": 1,
+              "name": "cart",
+              "url": "https://www.flipkart.com/viewcart",
+              "price_displayed": 139,
+              "currency": "INR",
+              "line_items": [
+                {
+                  "name": "ZEBRONICS ZEB-BRO, With In-Line MiC, 3.5mm Jack, 10mm drivers, Compatible for Phone/Tablet Wired",
+                  "amount": 139,
+                  "added_by_us": true,
+                  "pre_existing": false
+                }
+              ],
+              "timers": [],
+              "stock_claims": [],
+              "checkboxes": [],
+              "buttons": [],
+              "screenshot_ref": null
+            },
+            {
+              "index": 2,
+              "name": "payment",
+              "url": "https://www.flipkart.com/proceed/buyer/buyer?otracker=checkout_checkout",
+              "price_displayed": 176,
+              "currency": "INR",
+              "line_items": [
+                {
+                  "name": "ZEBRONICS ZEB-BRO, With In-Line MiC, 3.5mm Jack, 10mm drivers, Compatible for Phone/Tablet Wired",
+                  "amount": 139,
+                  "added_by_us": true,
+                  "pre_existing": false
+                },
+                {
+                  "name": "Delivery Charges",
+                  "amount": 40,
+                  "added_by_us": false,
+                  "pre_existing": false
+                }
+              ],
+              "timers": [],
+              "stock_claims": [],
+              "checkboxes": [],
+              "buttons": [],
+              "screenshot_ref": null
+            }
+          ],
+          "totals": {
+            "listed": 139,
+            "cart": null,
+            "payment_page": 176
+          },
+          "outcome": "COMPLETED",
+          "artifacts": {
+            "video_ref": "/api/media/09c417f2-6e42-4160-8b16-6175d7f5a2df.webm",
+            "hashes": {}
+          }
+        }
+      ]
+    }
+  },
+  "reports": {
+    "f_0c29f6": {
+      "finding": {
+        "finding_id": "f_0c29f6",
+        "platform": "Flipkart",
+        "pattern": "drip_pricing",
+        "severity": "high",
+        "measure": {
+          "delta_inr": 37,
+          "delta_pct": 26.62,
+          "from": 139,
+          "to": 176,
+          "listed": 139
+        },
+        "clause": "CCPA Guidelines for Prevention and Regulation of Dark Patterns, 2023 — drip pricing",
+        "evidence": {
+          "observation_ids": [
+            "obs_e762cf82"
+          ],
+          "video_ref": "/media/09c417f2-6e42-4160-8b16-6175d7f5a2df.webm",
+          "reproduced_in": "1 of 1 observations"
+        },
+        "status": "candidate",
+        "detected_at": "2026-10-24T15:28:41.777546Z"
+      },
+      "precedent": {
+        "case": "Zepto Marketplace",
+        "fine_inr": 700000,
+        "date": "2026-08",
+        "note": "handling charge added during checkout after a lower price was shown"
+      },
+      "penalty_ceiling": {
+        "first": 1000000,
+        "repeat": 5000000
+      },
+      "recommended_fix": "Show every mandatory charge on the listing page, not at payment. The fee itself is legal - hiding it until checkout is not.",
+      "harm_at_scale": {
+        "per_checkout_inr": 37,
+        "orders_per_year": 3650000,
+        "assumed_affected_rate": 0.01,
+        "affected_checkouts_per_year": 36500,
+        "annual_consumer_harm_inr": 1350500,
+        "annual_consumer_harm_readable": "Rs 13.5 lakh",
+        "basis": "illustration only: 10,000 checkouts a day. Real volume not published.",
+        "illustrative": true,
+        "method": "Rs 37 per affected checkout x 1% of 3,650,000 annual orders"
+      },
+      "benchmark": {
+        "this_platform_findings": 1,
+        "platforms_audited": 1,
+        "peer_average_findings": null,
+        "position": "no peers audited yet"
+      },
+      "verification": {
+        "status": "not_retested",
+        "how": "The journey path is saved. After the fix ships we replay the identical path and verify the pattern is gone."
+      },
+      "disclaimer": "Measurements, not verdicts. Figures describe what the interface displayed during automated sessions that never completed a payment. Harm estimates state their assumptions and are not claims about actual losses.",
+      "journey_states": [
+        {
+          "observation_id": "obs_e762cf82",
+          "probe_spec_id": "spec_d09195",
+          "platform": "Flipkart",
+          "condition": {
+            "session": "logged_in",
+            "run_index": 0,
+            "captured_at": "2026-10-24T14:47:25.288345Z"
+          },
+          "steps": [
+            {
+              "index": 0,
+              "name": "listing",
+              "url": "https://www.flipkart.com/search?q=earphones+under+150&sid=0pm,fcn,821",
+              "price_displayed": 139,
+              "currency": "INR",
+              "line_items": [
+                {
+                  "name": "ZEBRONICS ZEB-BRO, With In-Line MiC, 3.5mm Jack, 10mm drivers, Compatible for Phone/Tablet Wired",
+                  "amount": 139,
+                  "added_by_us": true,
+                  "pre_existing": false
+                }
+              ],
+              "timers": [],
+              "stock_claims": [],
+              "checkboxes": [],
+              "buttons": [],
+              "screenshot_ref": null
+            },
+            {
+              "index": 1,
+              "name": "cart",
+              "url": "https://www.flipkart.com/viewcart",
+              "price_displayed": 139,
+              "currency": "INR",
+              "line_items": [
+                {
+                  "name": "ZEBRONICS ZEB-BRO, With In-Line MiC, 3.5mm Jack, 10mm drivers, Compatible for Phone/Tablet Wired",
+                  "amount": 139,
+                  "added_by_us": true,
+                  "pre_existing": false
+                }
+              ],
+              "timers": [],
+              "stock_claims": [],
+              "checkboxes": [],
+              "buttons": [],
+              "screenshot_ref": null
+            },
+            {
+              "index": 2,
+              "name": "payment",
+              "url": "https://www.flipkart.com/proceed/buyer/buyer?otracker=checkout_checkout",
+              "price_displayed": 176,
+              "currency": "INR",
+              "line_items": [
+                {
+                  "name": "ZEBRONICS ZEB-BRO, With In-Line MiC, 3.5mm Jack, 10mm drivers, Compatible for Phone/Tablet Wired",
+                  "amount": 139,
+                  "added_by_us": true,
+                  "pre_existing": false
+                },
+                {
+                  "name": "Delivery Charges",
+                  "amount": 40,
+                  "added_by_us": false,
+                  "pre_existing": false
+                }
+              ],
+              "timers": [],
+              "stock_claims": [],
+              "checkboxes": [],
+              "buttons": [],
+              "screenshot_ref": null
+            }
+          ],
+          "totals": {
+            "listed": 139,
+            "cart": null,
+            "payment_page": 176
+          },
+          "outcome": "COMPLETED",
+          "artifacts": {
+            "video_ref": "/api/media/09c417f2-6e42-4160-8b16-6175d7f5a2df.webm",
+            "hashes": {}
+          }
+        }
+      ]
+    }
+  }
+}
